@@ -1,0 +1,293 @@
+{
+  "@@locale": "ar",
+  "common_save": "حفظ",
+  "@common_save": {
+    "description": "common save"
+  },
+  "common_cancel": "إلغاء",
+  "@common_cancel": {
+    "description": "common cancel"
+  },
+  "common_back": "رجوع",
+  "@common_back": {
+    "description": "common back"
+  },
+  "common_loading": "جاري التحميل…",
+  "@common_loading": {
+    "description": "common loading"
+  },
+  "common_error": "حدث خطأ ما",
+  "@common_error": {
+    "description": "common error"
+  },
+  "common_retry": "إعادة المحاولة",
+  "@common_retry": {
+    "description": "common retry"
+  },
+  "common_yes": "نعم",
+  "@common_yes": {
+    "description": "common yes"
+  },
+  "common_no": "لا",
+  "@common_no": {
+    "description": "common no"
+  },
+  "common_close": "إغلاق",
+  "@common_close": {
+    "description": "common close"
+  },
+  "common_delete": "حذف",
+  "@common_delete": {
+    "description": "common delete"
+  },
+  "common_edit": "تعديل",
+  "@common_edit": {
+    "description": "common edit"
+  },
+  "common_search": "بحث",
+  "@common_search": {
+    "description": "common search"
+  },
+  "common_next": "التالي",
+  "@common_next": {
+    "description": "common next"
+  },
+  "common_previous": "السابق",
+  "@common_previous": {
+    "description": "common previous"
+  },
+  "common_submit": "إرسال",
+  "@common_submit": {
+    "description": "common submit"
+  },
+  "common_confirm": "تأكيد",
+  "@common_confirm": {
+    "description": "common confirm"
+  },
+  "auth_sign_in": "تسجيل الدخول",
+  "@auth_sign_in": {
+    "description": "auth sign in"
+  },
+  "auth_sign_out": "تسجيل الخروج",
+  "@auth_sign_out": {
+    "description": "auth sign out"
+  },
+  "auth_email": "البريد الإلكتروني",
+  "@auth_email": {
+    "description": "auth email"
+  },
+  "auth_send_magic_link": "إرسال رابط الدخول",
+  "@auth_send_magic_link": {
+    "description": "auth send magic link"
+  },
+  "auth_magic_link_sent": "تحقق من بريدك الإلكتروني للحصول على رابط الدخول",
+  "@auth_magic_link_sent": {
+    "description": "auth magic link sent"
+  },
+  "auth_sign_in_error": "تعذر إرسال رابط الدخول. يرجى المحاولة مجددًا.",
+  "@auth_sign_in_error": {
+    "description": "auth sign in error"
+  },
+  "assessments_title": "التقييمات",
+  "@assessments_title": {
+    "description": "assessments title"
+  },
+  "assessments_new": "تقييم جديد",
+  "@assessments_new": {
+    "description": "assessments new"
+  },
+  "assessments_status_draft": "مسودة",
+  "@assessments_status_draft": {
+    "description": "assessments status draft"
+  },
+  "assessments_status_submitted": "مُقدَّم",
+  "@assessments_status_submitted": {
+    "description": "assessments status submitted"
+  },
+  "assessments_status_returned": "مُعاد",
+  "@assessments_status_returned": {
+    "description": "assessments status returned"
+  },
+  "assessments_status_approved": "مُعتمَد",
+  "@assessments_status_approved": {
+    "description": "assessments status approved"
+  },
+  "assessments_not_assessed": "غير مُقيَّم",
+  "@assessments_not_assessed": {
+    "description": "assessments not assessed"
+  },
+  "assessments_mark_not_assessed": "تعليم كغير مُقيَّم",
+  "@assessments_mark_not_assessed": {
+    "description": "assessments mark not assessed"
+  },
+  "assessments_submit": "إرسال التقييم",
+  "@assessments_submit": {
+    "description": "assessments submit"
+  },
+  "assessments_score": "النتيجة",
+  "@assessments_score": {
+    "description": "assessments score"
+  },
+  "assessments_summary": "ملخص",
+  "@assessments_summary": {
+    "description": "assessments summary"
+  },
+  "assessments_guidance": "إرشادات",
+  "@assessments_guidance": {
+    "description": "assessments guidance"
+  },
+  "assessments_note": "ملاحظة",
+  "@assessments_note": {
+    "description": "assessments note"
+  },
+  "settings_title": "الإعدادات",
+  "@settings_title": {
+    "description": "settings title"
+  },
+  "settings_language": "اللغة",
+  "@settings_language": {
+    "description": "settings language"
+  },
+  "settings_language_en": "الإنجليزية",
+  "@settings_language_en": {
+    "description": "settings language en"
+  },
+  "settings_language_so": "الصومالية",
+  "@settings_language_so": {
+    "description": "settings language so"
+  },
+  "settings_language_ar": "العربية",
+  "@settings_language_ar": {
+    "description": "settings language ar"
+  },
+  "help_title": "مساعدة",
+  "@help_title": {
+    "description": "help title"
+  },
+  "help_report_problem": "الإبلاغ عن مشكلة",
+  "@help_report_problem": {
+    "description": "help report problem"
+  },
+  "sync_now": "مزامنة الآن",
+  "@sync_now": { "description": "sync now button tooltip" },
+  "assessments_returned": "أُعيد للمراجعة",
+  "@assessments_returned": { "description": "assessments returned banner title" },
+  "force_update_title": "التحديث مطلوب",
+  "@force_update_title": { "description": "force update screen title" },
+  "force_update_body": "يلزم إصدار أحدث من هذا التطبيق للمتابعة. يرجى التحديث من المتجر.",
+  "@force_update_body": { "description": "force update screen body" },
+  "force_update_cta": "تحديث الآن",
+  "@force_update_cta": { "description": "force update screen call to action" },
+  "compare_title": "مقارنة",
+  "@compare_title": { "description": "compare screen title" },
+  "compare_select_hint": "اختر حتى 4 تقييمات معتمدة للمقارنة",
+  "@compare_select_hint": { "description": "compare select hint" },
+  "compare_no_approved": "لا توجد تقييمات معتمدة للمقارنة بعد.",
+  "@compare_no_approved": { "description": "compare no approved assessments" },
+  "compare_select_one_more": "اختر تقييمًا واحدًا على الأقل لعرض المقارنة.",
+  "@compare_select_one_more": { "description": "compare select one more hint" },
+  "compare_radar_title": "درجات الأقسام (%)",
+  "@compare_radar_title": { "description": "compare radar chart title" },
+  "compare_bar_title": "الدرجات الإجمالية",
+  "@compare_bar_title": { "description": "compare bar chart title" },
+  "export_share": "مشاركة",
+  "@export_share": { "description": "export share tooltip" },
+  "export_xlsx": "تصدير كـ Excel (.xlsx)",
+  "@export_xlsx": { "description": "export xlsx option" },
+  "export_pdf": "تصدير كـ PDF",
+  "@export_pdf": { "description": "export pdf option" },
+  "attachments_voice": "ملاحظة صوتية",
+  "@attachments_voice": { "description": "attachments voice note label" },
+  "attachments_photo": "صورة",
+  "@attachments_photo": { "description": "attachments photo label" },
+  "attachments_record": "تسجيل",
+  "@attachments_record": { "description": "attachments record button" },
+  "attachments_stop": "إيقاف",
+  "@attachments_stop": { "description": "attachments stop recording button" },
+  "attachments_uploading": "جارٍ الرفع…",
+  "@attachments_uploading": { "description": "attachments uploading status" },
+  "attachments_upload_failed": "فشل الرفع",
+  "@attachments_upload_failed": { "description": "attachments upload failed status" },
+  "assessments_attachments": "المرفقات",
+  "@assessments_attachments": { "description": "attachments section label" },
+  "assessments_voice_note": "ملاحظة صوتية",
+  "@assessments_voice_note": { "description": "voice note attachment label" },
+  "assessments_camera": "الكاميرا",
+  "@assessments_camera": { "description": "camera attachment button" },
+  "assessments_gallery": "معرض الصور",
+  "@assessments_gallery": { "description": "gallery attachment button" },
+  "assessments_record": "تسجيل",
+  "@assessments_record": { "description": "start recording button" },
+  "assessments_photo": "صورة",
+  "@assessments_photo": { "description": "photo attachment label" },
+  "common_stop": "إيقاف",
+  "@common_stop": { "description": "stop recording button" },
+  "common_pending_upload": "في انتظار الرفع",
+  "@common_pending_upload": { "description": "pending upload status" },
+  "auth_use_password": "استخدام كلمة المرور بدلاً من ذلك",
+  "@auth_use_password": { "description": "switch to password sign-in" },
+  "auth_use_magic_link": "استخدام رابط البريد الإلكتروني بدلاً من ذلك",
+  "@auth_use_magic_link": { "description": "switch to magic link sign-in" },
+  "auth_magic_link_note": "سيتم إرسال رابط تسجيل الدخول إلى بريدك الإلكتروني.",
+  "@auth_magic_link_note": { "description": "explanatory note below magic link send button" },
+  "assessment_assessors": "المقيّمون المشاركون",
+  "@assessment_assessors": { "description": "label for the co-assessors section on assessment summary" },
+  "assessment_no_assessors": "لم يتم تعيين مقيّمين مشاركين",
+  "@assessment_no_assessors": { "description": "empty state for co-assessors list" },
+  "assessment_add_assessor": "إدارة المقيّمين المشاركين",
+  "@assessment_add_assessor": { "description": "tooltip / button label to open the co-assessor picker" },
+  "auth_app_name": "تقييم المنطقة",
+  "@auth_app_name": { "description": "app name on login screen" },
+  "auth_app_tagline": "حوكمة أقاليم بونتلاند",
+  "@auth_app_tagline": { "description": "app tagline on login screen" },
+  "assessments_filter_all": "الكل",
+  "@assessments_filter_all": { "description": "filter: all assessments" },
+  "assessments_filter_drafts": "المسودات",
+  "@assessments_filter_drafts": { "description": "filter: drafts" },
+  "assessments_filter_submitted": "المُقدَّمة",
+  "@assessments_filter_submitted": { "description": "filter: submitted" },
+  "assessments_filter_returned": "المُعادة",
+  "@assessments_filter_returned": { "description": "filter: returned" },
+  "assessments_pending_upload_count": "{count} في الانتظار",
+  "@assessments_pending_upload_count": {
+    "description": "pending upload count chip",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "item_position": "{current} / {total}",
+  "@item_position": {
+    "description": "item position counter",
+    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "item_jump_to": "انتقل إلى",
+  "@item_jump_to": { "description": "jump to item menu button" },
+  "tab_assessments": "التقييمات",
+  "@tab_assessments": { "description": "bottom nav: assessments tab" },
+  "tab_compare": "مقارنة",
+  "@tab_compare": { "description": "bottom nav: compare tab" },
+  "tab_settings": "الإعدادات",
+  "@tab_settings": { "description": "bottom nav: settings tab" },
+  "location_label": "الموقع",
+  "@location_label": { "description": "label for location picker" },
+  "location_select_hint": "اختر الموقع",
+  "@location_select_hint": { "description": "hint text for location picker" },
+  "location_add": "إضافة موقع",
+  "@location_add": { "description": "button to add a new location" },
+  "location_tree_empty": "لا توجد مواقع متاحة",
+  "@location_tree_empty": { "description": "empty state for location picker" },
+  "assessments_date": "تاريخ التقييم",
+  "@assessments_date": { "description": "label for assessment date picker" },
+  "auth_server_label": "الخادم",
+  "@auth_server_label": { "description": "server config toggle label" },
+  "auth_server_url_label": "عنوان URL للخادم",
+  "@auth_server_url_label": { "description": "server URL field label" },
+  "auth_server_url_hint": "https://example.supabase.co",
+  "@auth_server_url_hint": { "description": "server URL field hint" },
+  "auth_server_anon_key_label": "المفتاح المجهول",
+  "@auth_server_anon_key_label": { "description": "anon key field label (advanced)" },
+  "auth_server_connect": "اتصال",
+  "@auth_server_connect": { "description": "apply server config button" },
+  "auth_server_invalid_url": "أدخل عنوان URL صالحاً يبدأ بـ http:// أو https://",
+  "@auth_server_invalid_url": { "description": "server URL validation error" },
+  "auth_server_error": "تعذّر الاتصال بالخادم",
+  "@auth_server_error": { "description": "server reinit error" }
+}

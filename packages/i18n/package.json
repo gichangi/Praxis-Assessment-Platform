@@ -1,0 +1,6 @@
+{
+  "name": "@assessment/i18n",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Source translation catalogs (JSON). Build: python tools/json_to_arb.py"
+}

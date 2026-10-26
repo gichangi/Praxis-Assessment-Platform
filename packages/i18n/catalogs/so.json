@@ -1,0 +1,63 @@
+{
+  "common": {
+    "save": "Keydi",
+    "cancel": "Jooji",
+    "back": "Dib",
+    "loading": "La soo rarayo…",
+    "error": "Wax khalad ah ayaa dhacay",
+    "retry": "Isku day",
+    "yes": "Haa",
+    "no": "Maya",
+    "close": "Xidh",
+    "delete": "Tirtir",
+    "edit": "Wax ka beddel",
+    "search": "Raadi",
+    "next": "Xiga",
+    "previous": "Hore",
+    "submit": "Gudbi",
+    "confirm": "Xaqiiji"
+  },
+  "auth": {
+    "sign_in": "Gal",
+    "sign_out": "Ka bixi",
+    "email": "Cinwaanka emailka",
+    "send_magic_link": "Dir xiriirka gelitaanka",
+    "magic_link_sent": "Emailkaaga ka eeg xiriirka gelitaanka",
+    "sign_in_error": "Xiriirka gelitaanka lama dirin. Fadlan isku day."
+  },
+  "assessments": {
+    "title": "Qiimaynta",
+    "new": "Qiimayn cusub",
+    "status_draft": "Qoraal",
+    "status_submitted": "La gudbiyey",
+    "status_returned": "La soo celiyey",
+    "status_approved": "La ansixiyey",
+    "not_assessed": "Lama qiimayn",
+    "mark_not_assessed": "U calaamadee lama qiimaynin",
+    "submit": "Gudbi qiimaynta",
+    "score": "Dhibcaha",
+    "summary": "Koobid",
+    "guidance": "Hagitaan",
+    "note": "Faallo"
+  },
+  "settings": {
+    "title": "Dejinta",
+    "language": "Luqadda",
+    "language_en": "Ingiriisi",
+    "language_so": "Soomaali",
+    "language_ar": "Carabi"
+  },
+  "help": {
+    "title": "Caawimaad",
+    "report_problem": "Warbixin dhibaato"
+  },
+  "locations": {
+    "title": "Goobaha",
+    "label": "Goobta",
+    "select_hint": "Dooro goobta",
+    "add": "Ku dar goob",
+    "tree_empty": "Goob lama helin",
+    "top_level": "Heerka ugu sarreeya",
+    "level": "Heer {n}"
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "@@locale": "so",
+  "common_save": "Keydi",
+  "@common_save": {
+    "description": "common save"
+  },
+  "common_cancel": "Jooji",
+  "@common_cancel": {
+    "description": "common cancel"
+  },
+  "common_back": "Dib",
+  "@common_back": {
+    "description": "common back"
+  },
+  "common_loading": "La soo rarayo…",
+  "@common_loading": {
+    "description": "common loading"
+  },
+  "common_error": "Wax khalad ah ayaa dhacay",
+  "@common_error": {
+    "description": "common error"
+  },
+  "common_retry": "Isku day",
+  "@common_retry": {
+    "description": "common retry"
+  },
+  "common_yes": "Haa",
+  "@common_yes": {
+    "description": "common yes"
+  },
+  "common_no": "Maya",
+  "@common_no": {
+    "description": "common no"
+  },
+  "common_close": "Xidh",
+  "@common_close": {
+    "description": "common close"
+  },
+  "common_delete": "Tirtir",
+  "@common_delete": {
+    "description": "common delete"
+  },
+  "common_edit": "Wax ka beddel",
+  "@common_edit": {
+    "description": "common edit"
+  },
+  "common_search": "Raadi",
+  "@common_search": {
+    "description": "common search"
+  },
+  "common_next": "Xiga",
+  "@common_next": {
+    "description": "common next"
+  },
+  "common_previous": "Hore",
+  "@common_previous": {
+    "description": "common previous"
+  },
+  "common_submit": "Gudbi",
+  "@common_submit": {
+    "description": "common submit"
+  },
+  "common_confirm": "Xaqiiji",
+  "@common_confirm": {
+    "description": "common confirm"
+  },
+  "auth_sign_in": "Gal",
+  "@auth_sign_in": {
+    "description": "auth sign in"
+  },
+  "auth_sign_out": "Ka bixi",
+  "@auth_sign_out": {
+    "description": "auth sign out"
+  },
+  "auth_email": "Cinwaanka emailka",
+  "@auth_email": {
+    "description": "auth email"
+  },
+  "auth_send_magic_link": "Dir xiriirka gelitaanka",
+  "@auth_send_magic_link": {
+    "description": "auth send magic link"
+  },
+  "auth_magic_link_sent": "Emailkaaga ka eeg xiriirka gelitaanka",
+  "@auth_magic_link_sent": {
+    "description": "auth magic link sent"
+  },
+  "auth_sign_in_error": "Xiriirka gelitaanka lama dirin. Fadlan isku day.",
+  "@auth_sign_in_error": {
+    "description": "auth sign in error"
+  },
+  "assessments_title": "Qiimaynta",
+  "@assessments_title": {
+    "description": "assessments title"
+  },
+  "assessments_new": "Qiimayn cusub",
+  "@assessments_new": {
+    "description": "assessments new"
+  },
+  "assessments_status_draft": "Qoraal",
+  "@assessments_status_draft": {
+    "description": "assessments status draft"
+  },
+  "assessments_status_submitted": "La gudbiyey",
+  "@assessments_status_submitted": {
+    "description": "assessments status submitted"
+  },
+  "assessments_status_returned": "La soo celiyey",
+  "@assessments_status_returned": {
+    "description": "assessments status returned"
+  },
+  "assessments_status_approved": "La ansixiyey",
+  "@assessments_status_approved": {
+    "description": "assessments status approved"
+  },
+  "assessments_not_assessed": "Lama qiimayn",
+  "@assessments_not_assessed": {
+    "description": "assessments not assessed"
+  },
+  "assessments_mark_not_assessed": "U calaamadee lama qiimaynin",
+  "@assessments_mark_not_assessed": {
+    "description": "assessments mark not assessed"
+  },
+  "assessments_submit": "Gudbi qiimaynta",
+  "@assessments_submit": {
+    "description": "assessments submit"
+  },
+  "assessments_score": "Dhibcaha",
+  "@assessments_score": {
+    "description": "assessments score"
+  },
+  "assessments_summary": "Koobid",
+  "@assessments_summary": {
+    "description": "assessments summary"
+  },
+  "assessments_guidance": "Hagitaan",
+  "@assessments_guidance": {
+    "description": "assessments guidance"
+  },
+  "assessments_note": "Faallo",
+  "@assessments_note": {
+    "description": "assessments note"
+  },
+  "settings_title": "Dejinta",
+  "@settings_title": {
+    "description": "settings title"
+  },
+  "settings_language": "Luqadda",
+  "@settings_language": {
+    "description": "settings language"
+  },
+  "settings_language_en": "Ingiriisi",
+  "@settings_language_en": {
+    "description": "settings language en"
+  },
+  "settings_language_so": "Soomaali",
+  "@settings_language_so": {
+    "description": "settings language so"
+  },
+  "settings_language_ar": "Carabi",
+  "@settings_language_ar": {
+    "description": "settings language ar"
+  },
+  "help_title": "Caawimaad",
+  "@help_title": {
+    "description": "help title"
+  },
+  "help_report_problem": "Warbixin dhibaato",
+  "@help_report_problem": {
+    "description": "help report problem"
+  },
+  "sync_now": "Is-waafaji hadda",
+  "@sync_now": { "description": "sync now button tooltip" },
+  "assessments_returned": "Loo soo celiyay",
+  "@assessments_returned": { "description": "assessments returned banner title" },
+  "force_update_title": "Cusboonaysiin loo baahan yahay",
+  "@force_update_title": { "description": "force update screen title" },
+  "force_update_body": "Nooca cusub ee barnaamijka ayaa loo baahan yahay. Fadlan ka cusboonaysii dukaanka.",
+  "@force_update_body": { "description": "force update screen body" },
+  "force_update_cta": "Cusboonaysii hadda",
+  "@force_update_cta": { "description": "force update screen call to action" },
+  "compare_title": "Is-barbar dhig",
+  "@compare_title": { "description": "compare screen title" },
+  "compare_select_hint": "Dooro ilaa 4 qiimayn oo la ansixiyay si loo barbar dhigo",
+  "@compare_select_hint": { "description": "compare select hint" },
+  "compare_no_approved": "Ma jiraan qiimeyn la ansixiyay oo la barbar dhigi karo.",
+  "@compare_no_approved": { "description": "compare no approved assessments" },
+  "compare_select_one_more": "Dooro hal qiimeyn oo kale si aad u aragto is-barbardhigga.",
+  "@compare_select_one_more": { "description": "compare select one more hint" },
+  "compare_radar_title": "Dhibcaha qaybta (%)",
+  "@compare_radar_title": { "description": "compare radar chart title" },
+  "compare_bar_title": "Dhibcaha guud",
+  "@compare_bar_title": { "description": "compare bar chart title" },
+  "export_share": "La wadaag",
+  "@export_share": { "description": "export share tooltip" },
+  "export_xlsx": "U diyaari Excel (.xlsx)",
+  "@export_xlsx": { "description": "export xlsx option" },
+  "export_pdf": "U diyaari PDF",
+  "@export_pdf": { "description": "export pdf option" },
+  "attachments_voice": "Codka xasuusinta",
+  "@attachments_voice": { "description": "attachments voice note label" },
+  "attachments_photo": "Sawir",
+  "@attachments_photo": { "description": "attachments photo label" },
+  "attachments_record": "Duub",
+  "@attachments_record": { "description": "attachments record button" },
+  "attachments_stop": "Jooji",
+  "@attachments_stop": { "description": "attachments stop recording button" },
+  "attachments_uploading": "Waa la rarayo…",
+  "@attachments_uploading": { "description": "attachments uploading status" },
+  "attachments_upload_failed": "Rarida waxay ku guuldareysatay",
+  "@attachments_upload_failed": { "description": "attachments upload failed status" },
+  "assessments_attachments": "Lifaaqyada",
+  "@assessments_attachments": { "description": "attachments section label" },
+  "assessments_voice_note": "Xusuus-codka",
+  "@assessments_voice_note": { "description": "voice note attachment label" },
+  "assessments_camera": "Kamarad",
+  "@assessments_camera": { "description": "camera attachment button" },
+  "assessments_gallery": "Sawirro",
+  "@assessments_gallery": { "description": "gallery attachment button" },
+  "assessments_record": "Duub",
+  "@assessments_record": { "description": "start recording button" },
+  "assessments_photo": "Sawir",
+  "@assessments_photo": { "description": "photo attachment label" },
+  "common_stop": "Jooji",
+  "@common_stop": { "description": "stop recording button" },
+  "common_pending_upload": "Sugaya in la raro",
+  "@common_pending_upload": { "description": "pending upload status" },
+  "auth_use_password": "Isticmaal furaha sirta ah",
+  "@auth_use_password": { "description": "switch to password sign-in" },
+  "auth_use_magic_link": "Isticmaal xiriirka iimayl-ka",
+  "@auth_use_magic_link": { "description": "switch to magic link sign-in" },
+  "auth_magic_link_note": "Xiriir gal ayaa loo diri doonaa iimaylkaaga.",
+  "@auth_magic_link_note": { "description": "explanatory note below magic link send button" },
+  "assessment_assessors": "La-qiimeyeyaasha",
+  "@assessment_assessors": { "description": "label for the co-assessors section on assessment summary" },
+  "assessment_no_assessors": "La-qiimeyeyaal lama xidhin",
+  "@assessment_no_assessors": { "description": "empty state for co-assessors list" },
+  "assessment_add_assessor": "Maamul la-qiimeyeyaasha",
+  "@assessment_add_assessor": { "description": "tooltip / button label to open the co-assessor picker" },
+  "auth_app_name": "Qiimaynta Degmada",
+  "@auth_app_name": { "description": "app name on login screen" },
+  "auth_app_tagline": "Maamulka Gobollada Puntland",
+  "@auth_app_tagline": { "description": "app tagline on login screen" },
+  "assessments_filter_all": "Dhammaan",
+  "@assessments_filter_all": { "description": "filter: all assessments" },
+  "assessments_filter_drafts": "Qiyaastayaasha",
+  "@assessments_filter_drafts": { "description": "filter: drafts" },
+  "assessments_filter_submitted": "La Gudbiyay",
+  "@assessments_filter_submitted": { "description": "filter: submitted" },
+  "assessments_filter_returned": "La Soo Celiyay",
+  "@assessments_filter_returned": { "description": "filter: returned" },
+  "assessments_pending_upload_count": "{count} sugaya",
+  "@assessments_pending_upload_count": {
+    "description": "pending upload count chip",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "item_position": "{current} / {total}",
+  "@item_position": {
+    "description": "item position counter",
+    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "item_jump_to": "Ku bood",
+  "@item_jump_to": { "description": "jump to item menu button" },
+  "tab_assessments": "Qiimaynaha",
+  "@tab_assessments": { "description": "bottom nav: assessments tab" },
+  "tab_compare": "Is-barbar dhig",
+  "@tab_compare": { "description": "bottom nav: compare tab" },
+  "tab_settings": "Dejinta",
+  "@tab_settings": { "description": "bottom nav: settings tab" },
+  "location_label": "Goobta",
+  "@location_label": { "description": "label for location picker" },
+  "location_select_hint": "Dooro goobta",
+  "@location_select_hint": { "description": "hint text for location picker" },
+  "location_add": "Ku dar goob",
+  "@location_add": { "description": "button to add a new location" },
+  "location_tree_empty": "Goob lama helin",
+  "@location_tree_empty": { "description": "empty state for location picker" },
+  "assessments_date": "Taariikhda qiimaynta",
+  "@assessments_date": { "description": "label for assessment date picker" },
+  "auth_server_label": "Server",
+  "@auth_server_label": { "description": "server config toggle label" },
+  "auth_server_url_label": "URL-ka serverka",
+  "@auth_server_url_label": { "description": "server URL field label" },
+  "auth_server_url_hint": "https://example.supabase.co",
+  "@auth_server_url_hint": { "description": "server URL field hint" },
+  "auth_server_anon_key_label": "Anon Key",
+  "@auth_server_anon_key_label": { "description": "anon key field label (advanced)" },
+  "auth_server_connect": "Xidho",
+  "@auth_server_connect": { "description": "apply server config button" },
+  "auth_server_invalid_url": "Gali URL sax ah oo bilaabma http:// ama https://",
+  "@auth_server_invalid_url": { "description": "server URL validation error" },
+  "auth_server_error": "Xiriirka serverka ma suurtogalin",
+  "@auth_server_error": { "description": "server reinit error" }
+}

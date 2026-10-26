@@ -1,0 +1,376 @@
+/* Warm stone, copper details, and Ledger's editorial clarity. */
+.praxis-login {
+  --concept-height: 100dvh;
+}
+.concept-fusion {
+  --accent: #955b40;
+  --ink: #332e29;
+  --subtle: #756b61;
+  --radius: 3px;
+  --button-ink: #30221c;
+  display: flex;
+  flex-direction: column;
+  background: #f1ece4;
+  padding: 0 48px;
+  position: relative;
+  overflow: hidden;
+}
+.concept-fusion::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  width: 960px;
+  height: 960px;
+  top: -240px;
+  left: -340px;
+  background: radial-gradient(ellipse, #d6af8733, transparent 65%);
+}
+.fusion-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 26px 0;
+  border-bottom: 1px solid #b79a7b40;
+}
+.fusion-header .concept-brand__mark {
+  color: var(--accent);
+  background: #fffaf0;
+  border: 1px solid #b79a7b80;
+}
+.fusion-main {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  align-items: center;
+  gap: clamp(40px, 6vw, 82px);
+  flex: 1;
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 22px 0;
+}
+.fusion-story .concept-overline {
+  color: var(--accent);
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fusion-story .concept-overline > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px #955b4010;
+}
+.fusion-story h2 {
+  font-family: var(--font-ibm-plex-serif), Georgia, serif;
+  font-size: clamp(44px, 4.9vw, 66px);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -1.9px;
+  margin-top: 23px;
+}
+.fusion-story h2 em {
+  font-style: normal;
+  color: var(--accent);
+}
+.fusion-story__bottom {
+  display: flex;
+  align-items: center;
+  gap: 27px;
+  margin-top: 30px;
+}
+.fusion-seal {
+  width: 162px;
+  flex-shrink: 0;
+  background: radial-gradient(ellipse, #b8865310, transparent 68%);
+}
+.fusion-seal .ledger-seal {
+  width: 100%;
+  color: #955b40;
+}
+.fusion-story-label {
+  font-family: monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: #88674f;
+}
+.fusion-story__bottom .concept-story-copy {
+  max-width: 230px;
+  font-size: 12px;
+  line-height: 1.85;
+  margin-top: 12px;
+}
+.fusion-story-rule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid #b79a7b40;
+  font-family: monospace;
+  color: #826f5e;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+.fusion-story-rule span:last-child {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.fusion-login {
+  --accent: #914f38;
+  --ink: #3b3028;
+  --subtle: #786b61;
+  --field: #fffbf3;
+  --line: #ddd0c0;
+  --button-ink: #fff9f0;
+  color: var(--ink);
+  border: 1px solid #ded2c2;
+  background: #fffcf6;
+  padding: 32px;
+  border-radius: 3px;
+  box-shadow: 0 20px 70px #7352390d;
+}
+.fusion-chapter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-family: monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: #927761;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dbcebd;
+  margin-bottom: 24px;
+}
+.fusion-login .concept-form {
+  max-width: none;
+}
+.fusion-login .concept-form__eyebrow {
+  display: none;
+}
+.fusion-login .concept-form h1 {
+  font-family: var(--font-ibm-plex-serif), Georgia, serif;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  text-wrap: pretty;
+}
+.fusion-login .concept-form__intro {
+  margin-top: 12px;
+  line-height: 1.7;
+}
+.fusion-login .concept-method {
+  padding: 0;
+  gap: 0;
+  margin-top: 24px;
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+}
+.fusion-login .concept-method button {
+  flex: 1;
+  padding: 12px 8px;
+  text-align: center;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+}
+.fusion-login .concept-method button[aria-pressed="true"] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: transparent;
+  box-shadow: none;
+}
+.fusion-login .concept-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 236px;
+  margin-top: 24px;
+}
+.fusion-login .concept-field + .concept-field {
+  margin-top: 0;
+}
+.fusion-login .concept-field label {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.fusion-login .concept-field input {
+  height: 48px;
+  padding-left: 16px;
+  padding-right: 16px;
+  font-size: 13px;
+}
+.fusion-login .concept-password input {
+  padding-right: 48px;
+}
+.fusion-login .concept-password button {
+  height: 48px;
+  right: 4px;
+}
+.fusion-login .concept-magic-note,
+.fusion-login .concept-error {
+  margin-top: 0;
+}
+.fusion-login .concept-submit {
+  min-height: 48px;
+  margin-top: auto;
+  padding: 12px 16px;
+  background: #e0a484;
+  color: #35221a;
+  border: 1px solid #ca9577;
+}
+.fusion-login .concept-access {
+  margin-top: 20px;
+  text-align: left;
+}
+.fusion-login .concept-sent .concept-submit {
+  margin-top: 24px;
+}
+.fusion-login-note {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #ded1bf;
+  color: #927c68;
+  font-size: 9px;
+}
+.fusion-login-note > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #a76e4d;
+}
+.fusion-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-top: 1px solid #b79a7b40;
+  padding: 19px 0;
+  color: #786b5f;
+  font-size: 9px;
+}
+.fusion-footer span:last-child {
+  font-family: monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+@media (min-width: 761px) and (max-height: 850px) {
+  .fusion-header {
+    padding: 17px 0;
+  }
+  .fusion-main {
+    padding: 8px 0;
+  }
+  .fusion-story h2 {
+    font-size: 55px;
+  }
+  .fusion-story__bottom {
+    margin-top: 23px;
+  }
+  .fusion-seal {
+    width: 143px;
+  }
+  .fusion-story-rule {
+    margin-top: 19px;
+  }
+  .fusion-login-note {
+    display: none;
+  }
+  .fusion-footer {
+    padding: 15px 0;
+  }
+}
+@media (min-width: 761px) and (max-width: 1050px) {
+  .concept-fusion {
+    padding: 0 32px;
+  }
+  .fusion-main {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 35px;
+  }
+  .fusion-story h2 {
+    font-size: 43px;
+  }
+  .fusion-story__bottom {
+    gap: 17px;
+  }
+  .fusion-seal {
+    width: 105px;
+  }
+  .fusion-story-label {
+    font-size: 7px;
+  }
+  .fusion-login {
+    padding: 28px;
+  }
+  .fusion-login .concept-form h1 {
+    font-size: 30px;
+  }
+}
+@media (max-width: 760px) {
+  .concept-preview-back span {
+    display: none;
+  }
+  .concept-fusion {
+    padding: 0 23px;
+  }
+  .fusion-header {
+    padding: 24px 0;
+  }
+  .fusion-main {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    padding: 24px 0;
+  }
+  .fusion-story .concept-overline {
+    font-size: 7px;
+  }
+  .fusion-story h2 {
+    font-size: 38px;
+    margin-top: 16px;
+    letter-spacing: -1px;
+  }
+  .fusion-story h2 br:nth-of-type(2) {
+    display: none;
+  }
+  .fusion-story__bottom,
+  .fusion-story-rule {
+    display: none;
+  }
+  .fusion-login {
+    width: 100%;
+    max-width: 440px;
+    align-self: center;
+    padding: 24px 20px;
+  }
+  .fusion-chapter {
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+  }
+  .fusion-login .concept-form h1 {
+    font-size: 30px;
+  }
+  .fusion-login-note {
+    display: none;
+  }
+  .fusion-footer {
+    padding: 18px 0 24px;
+    font-size: 9px;
+  }
+  .fusion-footer span:last-child {
+    display: none;
+  }
+}

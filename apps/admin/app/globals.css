@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: 241 236 228;
+  --color-surface: 255 252 246;
+  --color-ink: 51 46 41;
+  --color-primary: 149 91 64;
+  --color-primary-50: 246 238 229;
+  --color-primary-100: 234 214 196;
+  --color-primary-600: 126 73 51;
+  --color-primary-700: 102 59 44;
+  --color-border: 222 210 194;
+  --color-muted: 117 107 97;
+  --color-stone: 233 224 211;
+  --color-action: 224 164 132;
+  --color-action-ink: 53 34 26;
+  --color-action-hover: 215 150 114;
+  --bg: rgb(var(--color-bg));
+  --surface: rgb(var(--color-surface));
+  --text-main: rgb(var(--color-ink));
+  --primary: rgb(var(--color-primary));
+  --border: rgb(var(--color-border));
+  --muted: rgb(var(--color-muted));
+}
+
+@layer base {
+  html {
+    color-scheme: only light;
+    background-color: var(--bg);
+    color: var(--text-main);
+  }
+  body {
+    @apply bg-bg text-text-main antialiased;
+    font-family: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  }
+  ::selection {
+    background: #ead6c4;
+    color: #663b2c;
+  }
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
+  }
+  input,
+  textarea,
+  select {
+    accent-color: var(--primary);
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .page-container {
+    @apply mx-auto w-full max-w-[1440px] space-y-7 px-5 py-7 sm:px-8 lg:px-9 lg:py-8;
+  }
+  .page-header {
+    @apply flex flex-wrap items-start justify-between gap-4;
+  }
+  .page-title {
+    @apply font-serif text-[30px] font-normal leading-tight tracking-tight text-text-main sm:text-[36px];
+  }
+  .page-description {
+    @apply mt-2 max-w-2xl text-sm leading-relaxed text-muted;
+  }
+  .eyebrow {
+    @apply mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted;
+  }
+  .data-table {
+    @apply w-full text-left text-sm;
+  }
+  .data-table thead {
+    @apply border-y border-border bg-bg/80;
+  }
+  .data-table th {
+    @apply whitespace-nowrap px-5 py-3 text-[11px] font-medium uppercase tracking-[0.06em] text-muted;
+  }
+  .data-table td {
+    @apply px-5 py-4;
+  }
+  .data-table tbody tr {
+    @apply border-b border-border/70 transition-colors last:border-0 hover:bg-bg/70;
+  }
+  .table-scroll {
+    @apply w-full overflow-x-auto;
+  }
+  .table-scroll table {
+    min-width: 620px;
+  }
+  .status-tabs {
+    @apply flex gap-1 overflow-x-auto rounded-md border border-border bg-surface p-1;
+  }
+  .status-tab {
+    @apply whitespace-nowrap rounded px-4 py-2 text-sm font-medium capitalize text-muted transition-colors hover:bg-bg hover:text-text-main;
+  }
+  .status-tab-active {
+    @apply bg-primary-50 text-primary;
+  }
+  .field-label {
+    @apply mb-2 block text-sm font-medium text-text-main;
+  }
+  .field-help {
+    @apply mt-2 text-xs leading-relaxed text-muted;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c8b8a6;
+  border-radius: 6px;
+}
+.login-grid {
+  background-image:
+    linear-gradient(#ffffff08 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff08 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
+}
+@media (max-height: 850px) {
+  .sidebar-help {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .page-container {
+    animation: arrive 300ms ease-out;
+  }
+  @keyframes arrive {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

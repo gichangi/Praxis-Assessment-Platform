@@ -1,0 +1,92 @@
+export const LOGIN_DESIGNS = [
+  {
+    slug: "civic",
+    number: "01",
+    name: "Civic Editorial",
+    description: "Warm ivory, expressive serif typography, and an architectural composition.",
+    color: "#99553C",
+    mood: "Warm · Editorial · Established",
+  },
+  {
+    slug: "atlas",
+    number: "02",
+    name: "Atlas",
+    description: "A crisp blue workspace with a connected map and precise, technical details.",
+    color: "#315BE8",
+    mood: "Clear · Connected · Modern",
+  },
+  {
+    slug: "focus",
+    number: "03",
+    name: "Focus",
+    description: "A quiet, centred sign-in experience with generous space and a single clear task.",
+    color: "#234B3F",
+    mood: "Minimal · Calm · Accessible",
+  },
+  {
+    slug: "nocturne",
+    number: "04",
+    name: "Nocturne",
+    description: "A confident dark interface with amber accents and subtle atmospheric light.",
+    color: "#D9AB64",
+    mood: "Bold · Dark · Refined",
+  },
+  {
+    slug: "fieldwork",
+    number: "05",
+    name: "Fieldwork",
+    description: "An illustrated landscape, forest greens, and a welcoming paper-like form.",
+    color: "#466A45",
+    mood: "Human · Grounded · Welcoming",
+  },
+  {
+    slug: "ledger",
+    number: "06",
+    name: "Ledger",
+    description: "An ivory journal with oxblood accents, fine rules, and an architectural seal.",
+    color: "#773F40",
+    mood: "Editorial · Scholarly · Composed",
+    inspiredBy: "Civic Editorial",
+  },
+  {
+    slug: "portico",
+    number: "07",
+    name: "Portico",
+    description:
+      "Terracotta architecture and soft paper, arranged as a welcoming editorial spread.",
+    color: "#A65B43",
+    mood: "Warm · Sculptural · Timeless",
+    inspiredBy: "Civic Editorial",
+  },
+  {
+    slug: "obsidian",
+    number: "08",
+    name: "Obsidian",
+    description:
+      "Midnight ink, muted gold, and an orbital composition with a quietly elegant form.",
+    color: "#D1B887",
+    mood: "Dark · Precise · Understated",
+    inspiredBy: "Nocturne",
+  },
+  {
+    slug: "ember",
+    number: "09",
+    name: "Ember",
+    description: "Warm charcoal and copper, bold editorial type, and a sculptural rhythm of light.",
+    color: "#E0A484",
+    mood: "Atmospheric · Confident · Warm",
+    inspiredBy: "Nocturne",
+  },
+  {
+    slug: "ember-ledger",
+    number: "10",
+    name: "Ember Ledger",
+    description:
+      "Ledger’s considered editorial structure in warm stone and copper, with a bright ivory sign-in panel.",
+    color: "#955B40",
+    mood: "Editorial · Light · Assured",
+    inspiredBy: "Ember + Ledger",
+  },
+] as const;
+
+export type LoginDesign = (typeof LOGIN_DESIGNS)[number]["slug"];

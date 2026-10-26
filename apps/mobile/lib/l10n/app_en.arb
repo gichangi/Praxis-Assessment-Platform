@@ -1,0 +1,407 @@
+{
+  "@@locale": "en",
+  "common_save": "Save",
+  "@common_save": {
+    "description": "common save"
+  },
+  "common_cancel": "Cancel",
+  "@common_cancel": {
+    "description": "common cancel"
+  },
+  "common_back": "Back",
+  "@common_back": {
+    "description": "common back"
+  },
+  "common_loading": "Loading…",
+  "@common_loading": {
+    "description": "common loading"
+  },
+  "common_error": "Something went wrong",
+  "@common_error": {
+    "description": "common error"
+  },
+  "common_retry": "Retry",
+  "@common_retry": {
+    "description": "common retry"
+  },
+  "common_yes": "Yes",
+  "@common_yes": {
+    "description": "common yes"
+  },
+  "common_no": "No",
+  "@common_no": {
+    "description": "common no"
+  },
+  "common_close": "Close",
+  "@common_close": {
+    "description": "common close"
+  },
+  "common_delete": "Delete",
+  "@common_delete": {
+    "description": "common delete"
+  },
+  "common_edit": "Edit",
+  "@common_edit": {
+    "description": "common edit"
+  },
+  "common_search": "Search",
+  "@common_search": {
+    "description": "common search"
+  },
+  "common_next": "Next",
+  "@common_next": {
+    "description": "common next"
+  },
+  "common_previous": "Previous",
+  "@common_previous": {
+    "description": "common previous"
+  },
+  "common_submit": "Submit",
+  "@common_submit": {
+    "description": "common submit"
+  },
+  "common_confirm": "Confirm",
+  "@common_confirm": {
+    "description": "common confirm"
+  },
+  "auth_sign_in": "Sign in",
+  "@auth_sign_in": {
+    "description": "auth sign in"
+  },
+  "auth_sign_out": "Sign out",
+  "@auth_sign_out": {
+    "description": "auth sign out"
+  },
+  "auth_email": "Email address",
+  "@auth_email": {
+    "description": "auth email"
+  },
+  "auth_password": "Password",
+  "@auth_password": {
+    "description": "auth password label"
+  },
+  "auth_password_hint": "Enter your password",
+  "@auth_password_hint": {
+    "description": "auth password field hint"
+  },
+  "auth_tab_magic_link": "Email link",
+  "@auth_tab_magic_link": {
+    "description": "auth login tab: magic link"
+  },
+  "auth_tab_password": "Password",
+  "@auth_tab_password": {
+    "description": "auth login tab: password"
+  },
+  "auth_send_magic_link": "Send sign-in link",
+  "@auth_send_magic_link": {
+    "description": "auth send magic link"
+  },
+  "auth_magic_link_sent": "Check your email for a sign-in link",
+  "@auth_magic_link_sent": {
+    "description": "auth magic link sent"
+  },
+  "auth_sign_in_error": "Could not sign in. Please try again.",
+  "@auth_sign_in_error": {
+    "description": "auth sign in error"
+  },
+  "auth_wrong_credentials": "Incorrect email or password.",
+  "@auth_wrong_credentials": {
+    "description": "auth wrong credentials error"
+  },
+  "auth_forgot_password": "Forgot password?",
+  "@auth_forgot_password": {
+    "description": "auth forgot password link"
+  },
+  "auth_reset_sent": "Password reset email sent. Check your inbox.",
+  "@auth_reset_sent": {
+    "description": "auth password reset email sent confirmation"
+  },
+  "assessments_title": "Assessments",
+  "@assessments_title": {
+    "description": "assessments title"
+  },
+  "assessments_new": "New assessment",
+  "@assessments_new": {
+    "description": "assessments new"
+  },
+  "assessments_status_draft": "Draft",
+  "@assessments_status_draft": {
+    "description": "assessments status draft"
+  },
+  "assessments_status_submitted": "Submitted",
+  "@assessments_status_submitted": {
+    "description": "assessments status submitted"
+  },
+  "assessments_status_returned": "Returned",
+  "@assessments_status_returned": {
+    "description": "assessments status returned"
+  },
+  "assessments_status_approved": "Approved",
+  "@assessments_status_approved": {
+    "description": "assessments status approved"
+  },
+  "assessments_not_assessed": "Not assessed",
+  "@assessments_not_assessed": {
+    "description": "assessments not assessed"
+  },
+  "assessments_mark_not_assessed": "Mark as not assessed",
+  "@assessments_mark_not_assessed": {
+    "description": "assessments mark not assessed"
+  },
+  "assessments_submit": "Submit assessment",
+  "@assessments_submit": {
+    "description": "assessments submit"
+  },
+  "assessments_submit_confirm": "Submit this assessment? Missing items will block submission.",
+  "@assessments_submit_confirm": {
+    "description": "assessments submit confirm"
+  },
+  "assessments_score": "Score",
+  "@assessments_score": {
+    "description": "assessments score"
+  },
+  "assessments_score_label": "{score} / {max}",
+  "@assessments_score_label": {
+    "description": "assessments score label"
+  },
+  "assessments_section": "Section",
+  "@assessments_section": {
+    "description": "assessments section"
+  },
+  "assessments_guidance": "Guidance",
+  "@assessments_guidance": {
+    "description": "assessments guidance"
+  },
+  "assessments_note": "Note",
+  "@assessments_note": {
+    "description": "assessments note"
+  },
+  "assessments_note_hint": "Add a note for this item",
+  "@assessments_note_hint": {
+    "description": "assessments note hint"
+  },
+  "assessments_summary": "Summary",
+  "@assessments_summary": {
+    "description": "assessments summary"
+  },
+  "assessments_missing_items": "Missing items",
+  "@assessments_missing_items": {
+    "description": "assessments missing items"
+  },
+  "assessments_missing_items_desc": "Answer or mark as not assessed before submitting",
+  "@assessments_missing_items_desc": {
+    "description": "assessments missing items desc"
+  },
+  "sync_syncing": "Syncing…",
+  "@sync_syncing": {
+    "description": "sync syncing"
+  },
+  "sync_last_sync": "Last synced {time}",
+  "@sync_last_sync": {
+    "description": "sync last sync"
+  },
+  "sync_offline": "You are offline",
+  "@sync_offline": {
+    "description": "sync offline"
+  },
+  "sync_conflict": "Some changes were rejected by the server",
+  "@sync_conflict": {
+    "description": "sync conflict"
+  },
+  "sync_error": "Sync error",
+  "@sync_error": {
+    "description": "sync error"
+  },
+  "settings_title": "Settings",
+  "@settings_title": {
+    "description": "settings title"
+  },
+  "settings_language": "Language",
+  "@settings_language": {
+    "description": "settings language"
+  },
+  "settings_language_en": "English",
+  "@settings_language_en": {
+    "description": "settings language en"
+  },
+  "settings_language_so": "Somali",
+  "@settings_language_so": {
+    "description": "settings language so"
+  },
+  "settings_language_ar": "Arabic",
+  "@settings_language_ar": {
+    "description": "settings language ar"
+  },
+  "help_title": "Help",
+  "@help_title": {
+    "description": "help title"
+  },
+  "help_report_problem": "Report a problem",
+  "@help_report_problem": {
+    "description": "help report problem"
+  },
+  "help_problem_sent": "Your report was submitted. Thank you.",
+  "@help_problem_sent": {
+    "description": "help problem sent"
+  },
+  "sync_now": "Sync now",
+  "@sync_now": {
+    "description": "sync now button tooltip"
+  },
+  "assessments_returned": "Returned for revision",
+  "@assessments_returned": {
+    "description": "assessments returned banner title"
+  },
+  "force_update_title": "Update required",
+  "@force_update_title": {
+    "description": "force update screen title"
+  },
+  "force_update_body": "A newer version of this app is required to continue. Please update from the store.",
+  "@force_update_body": {
+    "description": "force update screen body"
+  },
+  "force_update_cta": "Update now",
+  "@force_update_cta": {
+    "description": "force update screen call to action"
+  },
+  "compare_title": "Compare",
+  "@compare_title": {
+    "description": "compare screen title"
+  },
+  "compare_select_hint": "Select up to 4 approved assessments to compare",
+  "@compare_select_hint": {
+    "description": "compare select hint"
+  },
+  "compare_no_approved": "No approved assessments to compare yet.",
+  "@compare_no_approved": {
+    "description": "compare no approved assessments"
+  },
+  "compare_select_one_more": "Select at least one more assessment to see a comparison.",
+  "@compare_select_one_more": {
+    "description": "compare select one more hint"
+  },
+  "compare_radar_title": "Section scores (%)",
+  "@compare_radar_title": {
+    "description": "compare radar chart title"
+  },
+  "compare_bar_title": "Overall scores",
+  "@compare_bar_title": {
+    "description": "compare bar chart title"
+  },
+  "export_share": "Share",
+  "@export_share": {
+    "description": "export share tooltip"
+  },
+  "export_xlsx": "Export as Excel (.xlsx)",
+  "@export_xlsx": {
+    "description": "export xlsx option"
+  },
+  "export_pdf": "Export as PDF",
+  "@export_pdf": {
+    "description": "export pdf option"
+  },
+  "attachments_voice": "Voice note",
+  "@attachments_voice": {
+    "description": "attachments voice note label"
+  },
+  "attachments_photo": "Photo",
+  "@attachments_photo": {
+    "description": "attachments photo label"
+  },
+  "attachments_record": "Record",
+  "@attachments_record": {
+    "description": "attachments record button"
+  },
+  "attachments_stop": "Stop",
+  "@attachments_stop": {
+    "description": "attachments stop recording button"
+  },
+  "attachments_uploading": "Uploading…",
+  "@attachments_uploading": {
+    "description": "attachments uploading status"
+  },
+  "attachments_upload_failed": "Upload failed",
+  "@attachments_upload_failed": { "description": "attachments upload failed status" },
+  "assessments_attachments": "Attachments",
+  "@assessments_attachments": { "description": "attachments section label" },
+  "assessments_voice_note": "Voice note",
+  "@assessments_voice_note": { "description": "voice note attachment label" },
+  "assessments_camera": "Camera",
+  "@assessments_camera": { "description": "camera attachment button" },
+  "assessments_gallery": "Gallery",
+  "@assessments_gallery": { "description": "gallery attachment button" },
+  "assessments_record": "Record",
+  "@assessments_record": { "description": "start recording button" },
+  "assessments_photo": "Photo",
+  "@assessments_photo": { "description": "photo attachment label" },
+  "common_stop": "Stop",
+  "@common_stop": { "description": "stop recording button" },
+  "common_pending_upload": "Pending upload",
+  "@common_pending_upload": { "description": "pending upload status" },
+  "auth_use_password": "Use password instead",
+  "@auth_use_password": { "description": "switch to password sign-in" },
+  "auth_use_magic_link": "Use email link instead",
+  "@auth_use_magic_link": { "description": "switch to magic link sign-in" },
+  "auth_magic_link_note": "A sign-in link will be sent to your email.\nYou stay signed in between sessions.",
+  "@auth_magic_link_note": { "description": "explanatory note below magic link send button" },
+  "assessment_assessors": "Co-assessors",
+  "@assessment_assessors": { "description": "label for the co-assessors section on assessment summary" },
+  "assessment_no_assessors": "No co-assessors assigned",
+  "@assessment_no_assessors": { "description": "empty state for co-assessors list" },
+  "assessment_add_assessor": "Manage co-assessors",
+  "@assessment_add_assessor": { "description": "tooltip / button label to open the co-assessor picker" },
+  "auth_app_name": "District Assessment",
+  "@auth_app_name": { "description": "app name on login screen" },
+  "auth_app_tagline": "Puntland Regional Governance",
+  "@auth_app_tagline": { "description": "app tagline on login screen" },
+  "assessments_filter_all": "All",
+  "@assessments_filter_all": { "description": "filter: all assessments" },
+  "assessments_filter_drafts": "Drafts",
+  "@assessments_filter_drafts": { "description": "filter: drafts" },
+  "assessments_filter_submitted": "Submitted",
+  "@assessments_filter_submitted": { "description": "filter: submitted" },
+  "assessments_filter_returned": "Returned",
+  "@assessments_filter_returned": { "description": "filter: returned" },
+  "assessments_pending_upload_count": "{count} pending",
+  "@assessments_pending_upload_count": {
+    "description": "pending upload count chip",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "item_position": "{current} / {total}",
+  "@item_position": {
+    "description": "item position counter",
+    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "item_jump_to": "Jump to",
+  "@item_jump_to": { "description": "jump to item menu button" },
+  "tab_assessments": "Assessments",
+  "@tab_assessments": { "description": "bottom nav: assessments tab" },
+  "tab_compare": "Compare",
+  "@tab_compare": { "description": "bottom nav: compare tab" },
+  "tab_settings": "Settings",
+  "@tab_settings": { "description": "bottom nav: settings tab" },
+  "location_label": "Location",
+  "@location_label": { "description": "label for location picker" },
+  "location_select_hint": "Select location",
+  "@location_select_hint": { "description": "hint text for location picker" },
+  "location_add": "Add location",
+  "@location_add": { "description": "button to add a new location" },
+  "location_tree_empty": "No locations available",
+  "@location_tree_empty": { "description": "empty state for location picker" },
+  "assessments_date": "Assessment date",
+  "@assessments_date": { "description": "label for assessment date picker" },
+  "auth_server_label": "Server",
+  "@auth_server_label": { "description": "server config toggle label" },
+  "auth_server_url_label": "Server URL",
+  "@auth_server_url_label": { "description": "server URL field label" },
+  "auth_server_url_hint": "https://example.supabase.co",
+  "@auth_server_url_hint": { "description": "server URL field hint" },
+  "auth_server_anon_key_label": "Anon Key",
+  "@auth_server_anon_key_label": { "description": "anon key field label (advanced)" },
+  "auth_server_connect": "Connect",
+  "@auth_server_connect": { "description": "apply server config button" },
+  "auth_server_invalid_url": "Enter a valid http:// or https:// URL",
+  "@auth_server_invalid_url": { "description": "server URL validation error" },
+  "auth_server_error": "Could not connect to server",
+  "@auth_server_error": { "description": "server reinit error" }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@assessment/api-types",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "generate": "supabase gen types typescript --local > src/index.ts",
+    "lint": "echo ok",
+    "typecheck": "echo ok",
+    "test": "echo ok"
+  },
+  "description": "Auto-generated Supabase TypeScript types. Run pnpm generate after migrations."
+}

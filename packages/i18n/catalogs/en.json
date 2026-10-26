@@ -1,0 +1,77 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "confirm": "Confirm"
+  },
+  "auth": {
+    "sign_in": "Sign in",
+    "sign_out": "Sign out",
+    "email": "Email address",
+    "send_magic_link": "Send sign-in link",
+    "magic_link_sent": "Check your email for a sign-in link",
+    "sign_in_error": "Could not send sign-in link. Please try again."
+  },
+  "assessments": {
+    "title": "Assessments",
+    "new": "New assessment",
+    "status_draft": "Draft",
+    "status_submitted": "Submitted",
+    "status_returned": "Returned",
+    "status_approved": "Approved",
+    "not_assessed": "Not assessed",
+    "mark_not_assessed": "Mark as not assessed",
+    "submit": "Submit assessment",
+    "submit_confirm": "Submit this assessment? Missing items will block submission.",
+    "score": "Score",
+    "score_label": "{score} / {max}",
+    "section": "Section",
+    "guidance": "Guidance",
+    "note": "Note",
+    "note_hint": "Add a note for this item",
+    "summary": "Summary",
+    "missing_items": "Missing items",
+    "missing_items_desc": "Answer or mark as not assessed before submitting"
+  },
+  "sync": {
+    "syncing": "Syncing…",
+    "last_sync": "Last synced {time}",
+    "offline": "You are offline",
+    "conflict": "Some changes were rejected by the server",
+    "error": "Sync error"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "language_en": "English",
+    "language_so": "Somali",
+    "language_ar": "Arabic"
+  },
+  "help": {
+    "title": "Help",
+    "report_problem": "Report a problem",
+    "problem_sent": "Your report was submitted. Thank you."
+  },
+  "locations": {
+    "title": "Locations",
+    "label": "Location",
+    "select_hint": "Select location",
+    "add": "Add location",
+    "tree_empty": "No locations available",
+    "top_level": "Top-level",
+    "level": "Level {n}"
+  }
+}

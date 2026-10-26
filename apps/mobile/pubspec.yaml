@@ -1,0 +1,77 @@
+name: assessment_platform
+description: District governance assessment — offline-first Flutter mobile app.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Backend
+  supabase_flutter: ^2.8.4
+
+  # Local storage (offline-first SQLite ORM)
+  drift: ">=2.22.1 <4.0.0"
+  sqlite3_flutter_libs: ">=0.5.28 <1.0.0"
+
+  # Routing & state
+  go_router: ^14.8.1
+  flutter_riverpod: ^2.6.1
+
+  # i18n
+  easy_localization: ^3.0.7
+
+  # Charts
+  fl_chart: ^0.70.2
+
+  # Media & attachments
+  record: ^7.0.0
+  just_audio: ^0.10.4
+  image_picker: ^1.1.2
+  flutter_image_compress: ^2.5.1
+
+  # Security
+  flutter_secure_storage: ^9.2.4
+
+  # Error tracking
+  sentry_flutter: ^9.0.0
+
+  # Utilities
+  path: ^1.9.0
+  path_provider: ^2.1.5
+  share_plus: ^12.0.0
+  connectivity_plus: ^6.1.4
+  url_launcher: ^6.3.1
+  package_info_plus: ^9.0.1
+  intl: any
+
+  # Export (on-device fallback)
+  pdf: ^3.11.3
+  excel: ^4.0.6
+
+  # (freezed_annotation and json_annotation removed — plain Dart classes used instead)
+
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  drift_dev: ">=2.28.0 <4.0.0"
+  build_runner: ">=2.16.0 <3.0.0"
+
+flutter:
+  uses-material-design: true
+  generate: true   # enables flutter gen-l10n for ARB files
+
+  assets:
+    - lib/l10n/

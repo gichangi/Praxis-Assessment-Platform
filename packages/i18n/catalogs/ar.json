@@ -1,0 +1,63 @@
+{
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "back": "رجوع",
+    "loading": "جاري التحميل…",
+    "error": "حدث خطأ ما",
+    "retry": "إعادة المحاولة",
+    "yes": "نعم",
+    "no": "لا",
+    "close": "إغلاق",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "search": "بحث",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال",
+    "confirm": "تأكيد"
+  },
+  "auth": {
+    "sign_in": "تسجيل الدخول",
+    "sign_out": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "send_magic_link": "إرسال رابط الدخول",
+    "magic_link_sent": "تحقق من بريدك الإلكتروني للحصول على رابط الدخول",
+    "sign_in_error": "تعذر إرسال رابط الدخول. يرجى المحاولة مجددًا."
+  },
+  "assessments": {
+    "title": "التقييمات",
+    "new": "تقييم جديد",
+    "status_draft": "مسودة",
+    "status_submitted": "مُقدَّم",
+    "status_returned": "مُعاد",
+    "status_approved": "مُعتمَد",
+    "not_assessed": "غير مُقيَّم",
+    "mark_not_assessed": "تعليم كغير مُقيَّم",
+    "submit": "إرسال التقييم",
+    "score": "النتيجة",
+    "summary": "ملخص",
+    "guidance": "إرشادات",
+    "note": "ملاحظة"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "language_en": "الإنجليزية",
+    "language_so": "الصومالية",
+    "language_ar": "العربية"
+  },
+  "help": {
+    "title": "مساعدة",
+    "report_problem": "الإبلاغ عن مشكلة"
+  },
+  "locations": {
+    "title": "المواقع",
+    "label": "الموقع",
+    "select_hint": "اختر الموقع",
+    "add": "إضافة موقع",
+    "tree_empty": "لا توجد مواقع متاحة",
+    "top_level": "المستوى الأعلى",
+    "level": "المستوى {n}"
+  }
+}
