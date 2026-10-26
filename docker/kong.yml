@@ -1,0 +1,132 @@
+_format_version: "1.1"
+
+###############################################################################
+# Consumers — map API keys to Supabase roles
+###############################################################################
+consumers:
+  - username: anon
+    keyauth_credentials:
+      - key: ${SUPABASE_ANON_KEY}
+  - username: service_role
+    keyauth_credentials:
+      - key: ${SUPABASE_SERVICE_KEY}
+
+acls:
+  - consumer: anon
+    group: anon
+  - consumer: service_role
+    group: admin
+
+###############################################################################
+# Services & routes
+###############################################################################
+services:
+
+  ## ── PostgREST ──────────────────────────────────────────────────────────────
+  - name: rest
+    url: http://rest:3000
+    routes:
+      - name: rest-v1
+        strip_path: true
+        paths:
+          - /rest/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: false
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - anon
+            - admin
+
+  ## ── GoTrue (auth) ──────────────────────────────────────────────────────────
+  - name: auth
+    url: http://auth:9999/
+    routes:
+      - name: auth-v1-all
+        strip_path: true
+        paths:
+          - /auth/v1/
+    plugins:
+      - name: cors
+
+  ## ── Realtime ───────────────────────────────────────────────────────────────
+  - name: realtime
+    url: http://realtime:4000/socket
+    routes:
+      - name: realtime-v1-websocket
+        strip_path: true
+        paths:
+          - /realtime/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: false
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - anon
+            - admin
+
+  ## ── Storage ────────────────────────────────────────────────────────────────
+  - name: storage
+    url: http://storage:5000/
+    routes:
+      - name: storage-v1
+        strip_path: true
+        paths:
+          - /storage/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: false
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - anon
+            - admin
+
+  ## ── Edge Functions ─────────────────────────────────────────────────────────
+  - name: functions
+    url: http://functions:9000
+    routes:
+      - name: functions-v1
+        strip_path: true
+        paths:
+          - /functions/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: false
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - anon
+            - admin
+
+  ## ── Postgres Meta (used by Studio) ────────────────────────────────────────
+  - name: meta
+    url: http://meta:8080/
+    routes:
+      - name: meta-all
+        strip_path: true
+        paths:
+          - /pg/
+    plugins:
+      - name: key-auth
+        config:
+          hide_credentials: false
+      - name: acl
+        config:
+          hide_groups_header: true
+          allow:
+            - admin

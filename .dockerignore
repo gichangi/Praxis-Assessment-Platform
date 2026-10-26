@@ -1,0 +1,37 @@
+# Version control
+.git
+.gitignore
+
+# Flutter mobile app (not part of the backend build)
+apps/mobile/
+
+# Node / pnpm caches
+node_modules/
+**/node_modules/
+.pnpm-store/
+**/.next/
+**/.next-production/
+**/tsconfig.tsbuildinfo
+
+# Test artifacts
+**/coverage/
+**/*.test.ts
+**/*.spec.ts
+**/vitest.config.*
+
+# Local Supabase (Docker handles this separately)
+supabase/.branches/
+supabase/.temp/
+
+# Secrets and local config
+.env
+.env.local
+docker/.env
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Docs that don't affect the build
+docs/
+*.md
