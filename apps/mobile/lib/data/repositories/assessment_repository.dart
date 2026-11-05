@@ -3,7 +3,31 @@ import 'dart:math';
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/text_resolver.dart';
+import '../../domain/versions.dart';
 import '../database/app_database.dart';
+
+/// A form the signed-in user may start assessments for, with the version to use and where.
+class AssignedForm {
+  const AssignedForm({required this.form, required this.version, required this.locationIds});
+
+  final LocalForm form;
+  final LocalFormVersion version;
+  final Set<String> locationIds;
+
+  String title(String lang) {
+    final resolved = tJson(form.titleJson, lang, 'en');
+    return resolved.isNotEmpty ? resolved : form.key;
+  }
+}
+
+/// Names for the ids shown on assessment cards.
+class AssessmentLookups {
+  const AssessmentLookups({required this.formTitleByVersionId, required this.locationNameById});
+
+  final Map<String, String> formTitleByVersionId;
+  final Map<String, String> locationNameById;
+}
 
 String _newUuid() {
   final r = Random.secure();
@@ -108,5 +132,59 @@ class AssessmentRepository {
         dirty: const Value(true),
       ));
 
-  Future<LocalFormVersion?> getLatestFormVersion() => _dao.latestFormVersion();
+  Future<LocalFormVersion?> getFormVersion(String id) => _dao.formVersionById(id);
+
+  Future<Map<String, String>> formIdByVersionId() => _dao.formIdByVersionId();
+
+  /// Forms assigned to this user that have a published version on the phone, with the
+  /// newest version to use for a new assessment.
+  Future<List<AssignedForm>> getAssignedForms() async {
+    final forms = await _dao.allForms();
+    final locationsByForm = <String, Set<String>>{};
+    for (final p in await _dao.allFormLocations()) {
+      (locationsByForm[p.formId] ??= {}).add(p.locationId);
+    }
+
+    final result = <AssignedForm>[];
+    for (final form in forms) {
+      final locationIds = locationsByForm[form.id];
+      if (locationIds == null || locationIds.isEmpty) continue;
+      final versions = await _dao.publishedVersionsOf(form.id);
+      if (versions.isEmpty) continue;
+      versions.sort((a, b) => compareVersions(b.version, a.version));
+      result.add(AssignedForm(form: form, version: versions.first, locationIds: locationIds));
+    }
+    return result;
+  }
+
+  Future<AssessmentLookups> loadLookups(String lang) async {
+    final titleByFormId = {
+      for (final f in await _dao.allForms()) f.id: tJson(f.titleJson, lang, 'en'),
+    };
+    final formIdByVersion = await _dao.formIdByVersionId();
+    return AssessmentLookups(
+      formTitleByVersionId: {
+        for (final e in formIdByVersion.entries) e.key: titleByFormId[e.value] ?? '',
+      },
+      locationNameById: {
+        for (final l in await _dao.allLocations())
+          l.id: tJson(l.nameJson, lang, 'en').ifEmpty(l.code),
+      },
+    );
+  }
+
+  /// Assessments with answers that have not reached the server yet.
+  Stream<Set<String>> watchPendingResponseIds() => _dao.watchAssessmentIdsWithPendingResponses();
+
+  /// The server refused a submission: take the status it kept, without queuing another upload.
+  Future<void> restoreServerStatus(String assessmentId, String status) =>
+      _dao.upsertAssessment(LocalAssessmentsCompanion(
+        id: Value(assessmentId),
+        status: Value(status),
+        dirty: const Value(false),
+      ));
+}
+
+extension on String {
+  String ifEmpty(String other) => isEmpty ? other : this;
 }

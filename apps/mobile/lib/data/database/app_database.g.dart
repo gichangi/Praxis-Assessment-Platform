@@ -1339,6 +1339,16 @@ class $LocalFormVersionsTable extends LocalFormVersions
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('published'),
+  );
   static const VerificationMeta _pulledAtMeta = const VerificationMeta(
     'pulledAt',
   );
@@ -1357,6 +1367,7 @@ class $LocalFormVersionsTable extends LocalFormVersions
     formId,
     version,
     definitionJson,
+    status,
     pulledAt,
   ];
   @override
@@ -1403,6 +1414,12 @@ class $LocalFormVersionsTable extends LocalFormVersions
     } else if (isInserting) {
       context.missing(_definitionJsonMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     if (data.containsKey('pulled_at')) {
       context.handle(
         _pulledAtMeta,
@@ -1434,6 +1451,10 @@ class $LocalFormVersionsTable extends LocalFormVersions
         DriftSqlType.string,
         data['${effectivePrefix}definition_json'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
       pulledAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}pulled_at'],
@@ -1453,12 +1474,14 @@ class LocalFormVersion extends DataClass
   final String formId;
   final String version;
   final String definitionJson;
+  final String status;
   final DateTime pulledAt;
   const LocalFormVersion({
     required this.id,
     required this.formId,
     required this.version,
     required this.definitionJson,
+    required this.status,
     required this.pulledAt,
   });
   @override
@@ -1468,6 +1491,7 @@ class LocalFormVersion extends DataClass
     map['form_id'] = Variable<String>(formId);
     map['version'] = Variable<String>(version);
     map['definition_json'] = Variable<String>(definitionJson);
+    map['status'] = Variable<String>(status);
     map['pulled_at'] = Variable<DateTime>(pulledAt);
     return map;
   }
@@ -1478,6 +1502,7 @@ class LocalFormVersion extends DataClass
       formId: Value(formId),
       version: Value(version),
       definitionJson: Value(definitionJson),
+      status: Value(status),
       pulledAt: Value(pulledAt),
     );
   }
@@ -1492,6 +1517,7 @@ class LocalFormVersion extends DataClass
       formId: serializer.fromJson<String>(json['formId']),
       version: serializer.fromJson<String>(json['version']),
       definitionJson: serializer.fromJson<String>(json['definitionJson']),
+      status: serializer.fromJson<String>(json['status']),
       pulledAt: serializer.fromJson<DateTime>(json['pulledAt']),
     );
   }
@@ -1503,6 +1529,7 @@ class LocalFormVersion extends DataClass
       'formId': serializer.toJson<String>(formId),
       'version': serializer.toJson<String>(version),
       'definitionJson': serializer.toJson<String>(definitionJson),
+      'status': serializer.toJson<String>(status),
       'pulledAt': serializer.toJson<DateTime>(pulledAt),
     };
   }
@@ -1512,12 +1539,14 @@ class LocalFormVersion extends DataClass
     String? formId,
     String? version,
     String? definitionJson,
+    String? status,
     DateTime? pulledAt,
   }) => LocalFormVersion(
     id: id ?? this.id,
     formId: formId ?? this.formId,
     version: version ?? this.version,
     definitionJson: definitionJson ?? this.definitionJson,
+    status: status ?? this.status,
     pulledAt: pulledAt ?? this.pulledAt,
   );
   LocalFormVersion copyWithCompanion(LocalFormVersionsCompanion data) {
@@ -1528,6 +1557,7 @@ class LocalFormVersion extends DataClass
       definitionJson: data.definitionJson.present
           ? data.definitionJson.value
           : this.definitionJson,
+      status: data.status.present ? data.status.value : this.status,
       pulledAt: data.pulledAt.present ? data.pulledAt.value : this.pulledAt,
     );
   }
@@ -1539,6 +1569,7 @@ class LocalFormVersion extends DataClass
           ..write('formId: $formId, ')
           ..write('version: $version, ')
           ..write('definitionJson: $definitionJson, ')
+          ..write('status: $status, ')
           ..write('pulledAt: $pulledAt')
           ..write(')'))
         .toString();
@@ -1546,7 +1577,7 @@ class LocalFormVersion extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(id, formId, version, definitionJson, pulledAt);
+      Object.hash(id, formId, version, definitionJson, status, pulledAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1555,6 +1586,7 @@ class LocalFormVersion extends DataClass
           other.formId == this.formId &&
           other.version == this.version &&
           other.definitionJson == this.definitionJson &&
+          other.status == this.status &&
           other.pulledAt == this.pulledAt);
 }
 
@@ -1563,6 +1595,7 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
   final Value<String> formId;
   final Value<String> version;
   final Value<String> definitionJson;
+  final Value<String> status;
   final Value<DateTime> pulledAt;
   final Value<int> rowid;
   const LocalFormVersionsCompanion({
@@ -1570,6 +1603,7 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
     this.formId = const Value.absent(),
     this.version = const Value.absent(),
     this.definitionJson = const Value.absent(),
+    this.status = const Value.absent(),
     this.pulledAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1578,6 +1612,7 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
     required String formId,
     required String version,
     required String definitionJson,
+    this.status = const Value.absent(),
     this.pulledAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1589,6 +1624,7 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
     Expression<String>? formId,
     Expression<String>? version,
     Expression<String>? definitionJson,
+    Expression<String>? status,
     Expression<DateTime>? pulledAt,
     Expression<int>? rowid,
   }) {
@@ -1597,6 +1633,7 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
       if (formId != null) 'form_id': formId,
       if (version != null) 'version': version,
       if (definitionJson != null) 'definition_json': definitionJson,
+      if (status != null) 'status': status,
       if (pulledAt != null) 'pulled_at': pulledAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1607,6 +1644,7 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
     Value<String>? formId,
     Value<String>? version,
     Value<String>? definitionJson,
+    Value<String>? status,
     Value<DateTime>? pulledAt,
     Value<int>? rowid,
   }) {
@@ -1615,6 +1653,7 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
       formId: formId ?? this.formId,
       version: version ?? this.version,
       definitionJson: definitionJson ?? this.definitionJson,
+      status: status ?? this.status,
       pulledAt: pulledAt ?? this.pulledAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1635,6 +1674,9 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
     if (definitionJson.present) {
       map['definition_json'] = Variable<String>(definitionJson.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (pulledAt.present) {
       map['pulled_at'] = Variable<DateTime>(pulledAt.value);
     }
@@ -1651,6 +1693,7 @@ class LocalFormVersionsCompanion extends UpdateCompanion<LocalFormVersion> {
           ..write('formId: $formId, ')
           ..write('version: $version, ')
           ..write('definitionJson: $definitionJson, ')
+          ..write('status: $status, ')
           ..write('pulledAt: $pulledAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -3246,6 +3289,538 @@ class LocalMembersCompanion extends UpdateCompanion<LocalMember> {
   }
 }
 
+class $LocalFormsTable extends LocalForms
+    with TableInfo<$LocalFormsTable, LocalForm> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalFormsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _organisationIdMeta = const VerificationMeta(
+    'organisationId',
+  );
+  @override
+  late final GeneratedColumn<String> organisationId = GeneratedColumn<String>(
+    'organisation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleJsonMeta = const VerificationMeta(
+    'titleJson',
+  );
+  @override
+  late final GeneratedColumn<String> titleJson = GeneratedColumn<String>(
+    'title_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, organisationId, key, titleJson];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_forms';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalForm> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('organisation_id')) {
+      context.handle(
+        _organisationIdMeta,
+        organisationId.isAcceptableOrUnknown(
+          data['organisation_id']!,
+          _organisationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_organisationIdMeta);
+    }
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('title_json')) {
+      context.handle(
+        _titleJsonMeta,
+        titleJson.isAcceptableOrUnknown(data['title_json']!, _titleJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleJsonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalForm map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalForm(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      organisationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}organisation_id'],
+      )!,
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      titleJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title_json'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalFormsTable createAlias(String alias) {
+    return $LocalFormsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalForm extends DataClass implements Insertable<LocalForm> {
+  final String id;
+  final String organisationId;
+  final String key;
+  final String titleJson;
+  const LocalForm({
+    required this.id,
+    required this.organisationId,
+    required this.key,
+    required this.titleJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['organisation_id'] = Variable<String>(organisationId);
+    map['key'] = Variable<String>(key);
+    map['title_json'] = Variable<String>(titleJson);
+    return map;
+  }
+
+  LocalFormsCompanion toCompanion(bool nullToAbsent) {
+    return LocalFormsCompanion(
+      id: Value(id),
+      organisationId: Value(organisationId),
+      key: Value(key),
+      titleJson: Value(titleJson),
+    );
+  }
+
+  factory LocalForm.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalForm(
+      id: serializer.fromJson<String>(json['id']),
+      organisationId: serializer.fromJson<String>(json['organisationId']),
+      key: serializer.fromJson<String>(json['key']),
+      titleJson: serializer.fromJson<String>(json['titleJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'organisationId': serializer.toJson<String>(organisationId),
+      'key': serializer.toJson<String>(key),
+      'titleJson': serializer.toJson<String>(titleJson),
+    };
+  }
+
+  LocalForm copyWith({
+    String? id,
+    String? organisationId,
+    String? key,
+    String? titleJson,
+  }) => LocalForm(
+    id: id ?? this.id,
+    organisationId: organisationId ?? this.organisationId,
+    key: key ?? this.key,
+    titleJson: titleJson ?? this.titleJson,
+  );
+  LocalForm copyWithCompanion(LocalFormsCompanion data) {
+    return LocalForm(
+      id: data.id.present ? data.id.value : this.id,
+      organisationId: data.organisationId.present
+          ? data.organisationId.value
+          : this.organisationId,
+      key: data.key.present ? data.key.value : this.key,
+      titleJson: data.titleJson.present ? data.titleJson.value : this.titleJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalForm(')
+          ..write('id: $id, ')
+          ..write('organisationId: $organisationId, ')
+          ..write('key: $key, ')
+          ..write('titleJson: $titleJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, organisationId, key, titleJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalForm &&
+          other.id == this.id &&
+          other.organisationId == this.organisationId &&
+          other.key == this.key &&
+          other.titleJson == this.titleJson);
+}
+
+class LocalFormsCompanion extends UpdateCompanion<LocalForm> {
+  final Value<String> id;
+  final Value<String> organisationId;
+  final Value<String> key;
+  final Value<String> titleJson;
+  final Value<int> rowid;
+  const LocalFormsCompanion({
+    this.id = const Value.absent(),
+    this.organisationId = const Value.absent(),
+    this.key = const Value.absent(),
+    this.titleJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalFormsCompanion.insert({
+    required String id,
+    required String organisationId,
+    required String key,
+    required String titleJson,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       organisationId = Value(organisationId),
+       key = Value(key),
+       titleJson = Value(titleJson);
+  static Insertable<LocalForm> custom({
+    Expression<String>? id,
+    Expression<String>? organisationId,
+    Expression<String>? key,
+    Expression<String>? titleJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (organisationId != null) 'organisation_id': organisationId,
+      if (key != null) 'key': key,
+      if (titleJson != null) 'title_json': titleJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalFormsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? organisationId,
+    Value<String>? key,
+    Value<String>? titleJson,
+    Value<int>? rowid,
+  }) {
+    return LocalFormsCompanion(
+      id: id ?? this.id,
+      organisationId: organisationId ?? this.organisationId,
+      key: key ?? this.key,
+      titleJson: titleJson ?? this.titleJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (organisationId.present) {
+      map['organisation_id'] = Variable<String>(organisationId.value);
+    }
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (titleJson.present) {
+      map['title_json'] = Variable<String>(titleJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFormsCompanion(')
+          ..write('id: $id, ')
+          ..write('organisationId: $organisationId, ')
+          ..write('key: $key, ')
+          ..write('titleJson: $titleJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LocalFormLocationsTable extends LocalFormLocations
+    with TableInfo<$LocalFormLocationsTable, LocalFormLocation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalFormLocationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _formIdMeta = const VerificationMeta('formId');
+  @override
+  late final GeneratedColumn<String> formId = GeneratedColumn<String>(
+    'form_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _locationIdMeta = const VerificationMeta(
+    'locationId',
+  );
+  @override
+  late final GeneratedColumn<String> locationId = GeneratedColumn<String>(
+    'location_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [formId, locationId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_form_locations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalFormLocation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('form_id')) {
+      context.handle(
+        _formIdMeta,
+        formId.isAcceptableOrUnknown(data['form_id']!, _formIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_formIdMeta);
+    }
+    if (data.containsKey('location_id')) {
+      context.handle(
+        _locationIdMeta,
+        locationId.isAcceptableOrUnknown(data['location_id']!, _locationIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_locationIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {formId, locationId};
+  @override
+  LocalFormLocation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalFormLocation(
+      formId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}form_id'],
+      )!,
+      locationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}location_id'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalFormLocationsTable createAlias(String alias) {
+    return $LocalFormLocationsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalFormLocation extends DataClass
+    implements Insertable<LocalFormLocation> {
+  final String formId;
+  final String locationId;
+  const LocalFormLocation({required this.formId, required this.locationId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['form_id'] = Variable<String>(formId);
+    map['location_id'] = Variable<String>(locationId);
+    return map;
+  }
+
+  LocalFormLocationsCompanion toCompanion(bool nullToAbsent) {
+    return LocalFormLocationsCompanion(
+      formId: Value(formId),
+      locationId: Value(locationId),
+    );
+  }
+
+  factory LocalFormLocation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalFormLocation(
+      formId: serializer.fromJson<String>(json['formId']),
+      locationId: serializer.fromJson<String>(json['locationId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'formId': serializer.toJson<String>(formId),
+      'locationId': serializer.toJson<String>(locationId),
+    };
+  }
+
+  LocalFormLocation copyWith({String? formId, String? locationId}) =>
+      LocalFormLocation(
+        formId: formId ?? this.formId,
+        locationId: locationId ?? this.locationId,
+      );
+  LocalFormLocation copyWithCompanion(LocalFormLocationsCompanion data) {
+    return LocalFormLocation(
+      formId: data.formId.present ? data.formId.value : this.formId,
+      locationId: data.locationId.present
+          ? data.locationId.value
+          : this.locationId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFormLocation(')
+          ..write('formId: $formId, ')
+          ..write('locationId: $locationId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(formId, locationId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalFormLocation &&
+          other.formId == this.formId &&
+          other.locationId == this.locationId);
+}
+
+class LocalFormLocationsCompanion extends UpdateCompanion<LocalFormLocation> {
+  final Value<String> formId;
+  final Value<String> locationId;
+  final Value<int> rowid;
+  const LocalFormLocationsCompanion({
+    this.formId = const Value.absent(),
+    this.locationId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalFormLocationsCompanion.insert({
+    required String formId,
+    required String locationId,
+    this.rowid = const Value.absent(),
+  }) : formId = Value(formId),
+       locationId = Value(locationId);
+  static Insertable<LocalFormLocation> custom({
+    Expression<String>? formId,
+    Expression<String>? locationId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (formId != null) 'form_id': formId,
+      if (locationId != null) 'location_id': locationId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalFormLocationsCompanion copyWith({
+    Value<String>? formId,
+    Value<String>? locationId,
+    Value<int>? rowid,
+  }) {
+    return LocalFormLocationsCompanion(
+      formId: formId ?? this.formId,
+      locationId: locationId ?? this.locationId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (formId.present) {
+      map['form_id'] = Variable<String>(formId.value);
+    }
+    if (locationId.present) {
+      map['location_id'] = Variable<String>(locationId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFormLocationsCompanion(')
+          ..write('formId: $formId, ')
+          ..write('locationId: $locationId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3262,6 +3837,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $LocalMembersTable localMembers = $LocalMembersTable(this);
+  late final $LocalFormsTable localForms = $LocalFormsTable(this);
+  late final $LocalFormLocationsTable localFormLocations =
+      $LocalFormLocationsTable(this);
   late final AssessmentsDao assessmentsDao = AssessmentsDao(
     this as AppDatabase,
   );
@@ -3277,6 +3855,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localHelpArticles,
     localAttachments,
     localMembers,
+    localForms,
+    localFormLocations,
   ];
 }
 
@@ -3939,6 +4519,7 @@ typedef $$LocalFormVersionsTableCreateCompanionBuilder =
       required String formId,
       required String version,
       required String definitionJson,
+      Value<String> status,
       Value<DateTime> pulledAt,
       Value<int> rowid,
     });
@@ -3948,6 +4529,7 @@ typedef $$LocalFormVersionsTableUpdateCompanionBuilder =
       Value<String> formId,
       Value<String> version,
       Value<String> definitionJson,
+      Value<String> status,
       Value<DateTime> pulledAt,
       Value<int> rowid,
     });
@@ -3978,6 +4560,11 @@ class $$LocalFormVersionsTableFilterComposer
 
   ColumnFilters<String> get definitionJson => $composableBuilder(
     column: $table.definitionJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4016,6 +4603,11 @@ class $$LocalFormVersionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get pulledAt => $composableBuilder(
     column: $table.pulledAt,
     builder: (column) => ColumnOrderings(column),
@@ -4044,6 +4636,9 @@ class $$LocalFormVersionsTableAnnotationComposer
     column: $table.definitionJson,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 
   GeneratedColumn<DateTime> get pulledAt =>
       $composableBuilder(column: $table.pulledAt, builder: (column) => column);
@@ -4093,6 +4688,7 @@ class $$LocalFormVersionsTableTableManager
                 Value<String> formId = const Value.absent(),
                 Value<String> version = const Value.absent(),
                 Value<String> definitionJson = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<DateTime> pulledAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalFormVersionsCompanion(
@@ -4100,6 +4696,7 @@ class $$LocalFormVersionsTableTableManager
                 formId: formId,
                 version: version,
                 definitionJson: definitionJson,
+                status: status,
                 pulledAt: pulledAt,
                 rowid: rowid,
               ),
@@ -4109,6 +4706,7 @@ class $$LocalFormVersionsTableTableManager
                 required String formId,
                 required String version,
                 required String definitionJson,
+                Value<String> status = const Value.absent(),
                 Value<DateTime> pulledAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LocalFormVersionsCompanion.insert(
@@ -4116,6 +4714,7 @@ class $$LocalFormVersionsTableTableManager
                 formId: formId,
                 version: version,
                 definitionJson: definitionJson,
+                status: status,
                 pulledAt: pulledAt,
                 rowid: rowid,
               ),
@@ -5075,6 +5674,364 @@ typedef $$LocalMembersTableProcessedTableManager =
       LocalMember,
       PrefetchHooks Function()
     >;
+typedef $$LocalFormsTableCreateCompanionBuilder =
+    LocalFormsCompanion Function({
+      required String id,
+      required String organisationId,
+      required String key,
+      required String titleJson,
+      Value<int> rowid,
+    });
+typedef $$LocalFormsTableUpdateCompanionBuilder =
+    LocalFormsCompanion Function({
+      Value<String> id,
+      Value<String> organisationId,
+      Value<String> key,
+      Value<String> titleJson,
+      Value<int> rowid,
+    });
+
+class $$LocalFormsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalFormsTable> {
+  $$LocalFormsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get organisationId => $composableBuilder(
+    column: $table.organisationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get titleJson => $composableBuilder(
+    column: $table.titleJson,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalFormsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalFormsTable> {
+  $$LocalFormsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get organisationId => $composableBuilder(
+    column: $table.organisationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get titleJson => $composableBuilder(
+    column: $table.titleJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalFormsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalFormsTable> {
+  $$LocalFormsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get organisationId => $composableBuilder(
+    column: $table.organisationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get titleJson =>
+      $composableBuilder(column: $table.titleJson, builder: (column) => column);
+}
+
+class $$LocalFormsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalFormsTable,
+          LocalForm,
+          $$LocalFormsTableFilterComposer,
+          $$LocalFormsTableOrderingComposer,
+          $$LocalFormsTableAnnotationComposer,
+          $$LocalFormsTableCreateCompanionBuilder,
+          $$LocalFormsTableUpdateCompanionBuilder,
+          (
+            LocalForm,
+            BaseReferences<_$AppDatabase, $LocalFormsTable, LocalForm>,
+          ),
+          LocalForm,
+          PrefetchHooks Function()
+        > {
+  $$LocalFormsTableTableManager(_$AppDatabase db, $LocalFormsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalFormsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalFormsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalFormsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> organisationId = const Value.absent(),
+                Value<String> key = const Value.absent(),
+                Value<String> titleJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFormsCompanion(
+                id: id,
+                organisationId: organisationId,
+                key: key,
+                titleJson: titleJson,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String organisationId,
+                required String key,
+                required String titleJson,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFormsCompanion.insert(
+                id: id,
+                organisationId: organisationId,
+                key: key,
+                titleJson: titleJson,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$LocalFormsTable, LocalForm>(table),
+                  BaseReferences<_$AppDatabase, $LocalFormsTable, LocalForm>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalFormsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalFormsTable,
+      LocalForm,
+      $$LocalFormsTableFilterComposer,
+      $$LocalFormsTableOrderingComposer,
+      $$LocalFormsTableAnnotationComposer,
+      $$LocalFormsTableCreateCompanionBuilder,
+      $$LocalFormsTableUpdateCompanionBuilder,
+      (LocalForm, BaseReferences<_$AppDatabase, $LocalFormsTable, LocalForm>),
+      LocalForm,
+      PrefetchHooks Function()
+    >;
+typedef $$LocalFormLocationsTableCreateCompanionBuilder =
+    LocalFormLocationsCompanion Function({
+      required String formId,
+      required String locationId,
+      Value<int> rowid,
+    });
+typedef $$LocalFormLocationsTableUpdateCompanionBuilder =
+    LocalFormLocationsCompanion Function({
+      Value<String> formId,
+      Value<String> locationId,
+      Value<int> rowid,
+    });
+
+class $$LocalFormLocationsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalFormLocationsTable> {
+  $$LocalFormLocationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get formId => $composableBuilder(
+    column: $table.formId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get locationId => $composableBuilder(
+    column: $table.locationId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalFormLocationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalFormLocationsTable> {
+  $$LocalFormLocationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get formId => $composableBuilder(
+    column: $table.formId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get locationId => $composableBuilder(
+    column: $table.locationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalFormLocationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalFormLocationsTable> {
+  $$LocalFormLocationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get formId =>
+      $composableBuilder(column: $table.formId, builder: (column) => column);
+
+  GeneratedColumn<String> get locationId => $composableBuilder(
+    column: $table.locationId,
+    builder: (column) => column,
+  );
+}
+
+class $$LocalFormLocationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalFormLocationsTable,
+          LocalFormLocation,
+          $$LocalFormLocationsTableFilterComposer,
+          $$LocalFormLocationsTableOrderingComposer,
+          $$LocalFormLocationsTableAnnotationComposer,
+          $$LocalFormLocationsTableCreateCompanionBuilder,
+          $$LocalFormLocationsTableUpdateCompanionBuilder,
+          (
+            LocalFormLocation,
+            BaseReferences<
+              _$AppDatabase,
+              $LocalFormLocationsTable,
+              LocalFormLocation
+            >,
+          ),
+          LocalFormLocation,
+          PrefetchHooks Function()
+        > {
+  $$LocalFormLocationsTableTableManager(
+    _$AppDatabase db,
+    $LocalFormLocationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalFormLocationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalFormLocationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalFormLocationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> formId = const Value.absent(),
+                Value<String> locationId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFormLocationsCompanion(
+                formId: formId,
+                locationId: locationId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String formId,
+                required String locationId,
+                Value<int> rowid = const Value.absent(),
+              }) => LocalFormLocationsCompanion.insert(
+                formId: formId,
+                locationId: locationId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$LocalFormLocationsTable, LocalFormLocation>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $LocalFormLocationsTable,
+                    LocalFormLocation
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalFormLocationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalFormLocationsTable,
+      LocalFormLocation,
+      $$LocalFormLocationsTableFilterComposer,
+      $$LocalFormLocationsTableOrderingComposer,
+      $$LocalFormLocationsTableAnnotationComposer,
+      $$LocalFormLocationsTableCreateCompanionBuilder,
+      $$LocalFormLocationsTableUpdateCompanionBuilder,
+      (
+        LocalFormLocation,
+        BaseReferences<
+          _$AppDatabase,
+          $LocalFormLocationsTable,
+          LocalFormLocation
+        >,
+      ),
+      LocalFormLocation,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5093,4 +6050,8 @@ class $AppDatabaseManager {
       $$LocalAttachmentsTableTableManager(_db, _db.localAttachments);
   $$LocalMembersTableTableManager get localMembers =>
       $$LocalMembersTableTableManager(_db, _db.localMembers);
+  $$LocalFormsTableTableManager get localForms =>
+      $$LocalFormsTableTableManager(_db, _db.localForms);
+  $$LocalFormLocationsTableTableManager get localFormLocations =>
+      $$LocalFormLocationsTableTableManager(_db, _db.localFormLocations);
 }

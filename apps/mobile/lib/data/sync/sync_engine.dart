@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -64,7 +65,10 @@ class SyncEngine {
   bool _syncing = false;
   int _failureCount = 0;
   Timer? _retryTimer;
+  Timer? _pollTimer;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
+  StreamSubscription<AuthState>? _authSub;
+  AppLifecycleListener? _lifecycle;
 
   static const _retryDelays = [
     Duration(seconds: 10),
@@ -72,16 +76,28 @@ class SyncEngine {
     Duration(seconds: 90),
   ];
 
+  /// How often to look for newly assigned forms and upload finished work while the app is open.
+  static const _pollInterval = Duration(minutes: 2);
+
   void start() {
     _connectivitySub = Connectivity().onConnectivityChanged.listen((results) {
       if (results.any((r) => r != ConnectivityResult.none)) sync();
     });
+    // Signing in is when the first assignments need to arrive.
+    _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((state) {
+      if (state.event == AuthChangeEvent.signedIn) sync();
+    });
+    _lifecycle = AppLifecycleListener(onResume: sync);
+    _pollTimer = Timer.periodic(_pollInterval, (_) => sync());
     sync();
   }
 
   void dispose() {
     _retryTimer?.cancel();
+    _pollTimer?.cancel();
     _connectivitySub?.cancel();
+    _authSub?.cancel();
+    _lifecycle?.dispose();
     _statusCtrl.close();
   }
 
@@ -93,9 +109,9 @@ class SyncEngine {
     _statusCtrl.add(const SyncProgress());
 
     try {
-      await _doSync();
+      final outcome = await _doSync();
       _failureCount = 0;
-      _statusCtrl.add(const SyncIdle());
+      _statusCtrl.add(outcome);
     } catch (e) {
       _failureCount++;
       _statusCtrl.add(SyncError(e.toString()));
@@ -112,7 +128,7 @@ class SyncEngine {
 
   // ─── Core sync ───────────────────────────────────────────────────────────────
 
-  Future<void> _doSync() async {
+  Future<SyncStatus> _doSync() async {
     final deviceId = await _deviceId();
     final cursor = await storage.read(key: 'sync_cursor');
 
@@ -128,6 +144,7 @@ class SyncEngine {
       deviceId: deviceId,
       push: push,
       cursor: cursor,
+      knownFormVersionIds: await db.assessmentsDao.allFormVersionIds(),
     ));
 
     // Mark each accepted push as clean
@@ -151,12 +168,26 @@ class SyncEngine {
       }
     }
 
+    // The server refused to submit these (e.g. unanswered items): take back the status it kept,
+    // so the assessment shows as a draft again instead of claiming it is complete.
+    final refusals = result.rejected.where((r) => r.isSubmitFailure).toList();
+    for (final r in refusals) {
+      await db.assessmentsDao.upsertAssessment(LocalAssessmentsCompanion(
+        id: Value(r.id),
+        status: Value(r.status ?? 'draft'),
+        dirty: const Value(false),
+      ));
+    }
+
     await _applyPull(result.pull);
     await storage.write(key: 'sync_cursor', value: result.cursor);
     await _uploadPendingAttachments();
 
+    if (refusals.isNotEmpty) return SyncError(refusals.first.submitMessage);
+    final notAssigned = result.rejected.where((r) => r.reason == 'not_assigned').length;
+    if (notAssigned > 0) return SyncError('not_assigned');
     final conflicts = result.rejected.where((r) => r.isConflict).length;
-    if (conflicts > 0) _statusCtrl.add(SyncConflict(conflicts));
+    return conflicts > 0 ? SyncConflict(conflicts) : const SyncIdle();
   }
 
   // ─── Push serialisers ────────────────────────────────────────────────────────
@@ -175,6 +206,8 @@ class SyncEngine {
               ? (jsonDecode(a.assessorsJson!) as List).cast<String>()
               : <String>[],
           'updated_at': a.updatedAt.toIso8601String(),
+          // Asks the server to submit once the answers have arrived; it decides.
+          if (a.status == 'submitted') 'status': 'submitted',
         },
       };
 
@@ -199,8 +232,26 @@ class SyncEngine {
         formId: fv['form_id'] as String,
         version: fv['version'] as String,
         definitionJson: jsonEncode(fv['definition']),
+        status: Value(fv['status'] as String? ?? 'published'),
         pulledAt: Value(DateTime.now()),
       ));
+    }
+
+    if (pull.forms.isNotEmpty) {
+      await db.assessmentsDao.upsertForms(pull.forms.map((f) => LocalFormsCompanion.insert(
+            id: f['id'] as String,
+            organisationId: f['organisation_id'] as String,
+            key: f['key'] as String,
+            titleJson: jsonEncode(f['title']),
+          )).toList());
+    }
+
+    if (pull.hasAssignments) {
+      await db.assessmentsDao.replaceFormLocations(pull.assignments.map((a) =>
+          LocalFormLocationsCompanion.insert(
+            formId: a['form_id'] as String,
+            locationId: a['location_id'] as String,
+          )).toList());
     }
 
     if (pull.locations.isNotEmpty) {

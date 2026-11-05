@@ -44,13 +44,13 @@ isOneToOne: false
                   ]
                 },"assessments": {
                   Row: {
-                    "assessed_on": string,"assessors": (string)[],"created_at": string,"created_by": string,"deleted_at": string | null,"device_id": string | null,"district_id": string,"form_version_id": string,"id": string,"language": string,"organisation_id": string,"review_note": string | null,"status": Database["public"]['Enums']["assessment_status"],"submitted_at": string | null,"totals": Json | null,"updated_at": string,"can_edit_assessment": boolean | null,"can_read_assessment": boolean | null
+                    "assessed_on": string,"assessors": (string)[],"created_at": string,"created_by": string,"deleted_at": string | null,"device_id": string | null,"form_version_id": string,"id": string,"language": string,"location_id": string,"organisation_id": string,"review_note": string | null,"status": Database["public"]['Enums']["assessment_status"],"submitted_at": string | null,"totals": Json | null,"updated_at": string
                   }
                   Insert: {
-                    "assessed_on"?: string,"assessors"?: (string)[],"created_at"?: string,"created_by": string,"deleted_at"?: string | null,"device_id"?: string | null,"district_id": string,"form_version_id": string,"id": string,"language"?: string,"organisation_id": string,"review_note"?: string | null,"status"?: Database["public"]['Enums']["assessment_status"],"submitted_at"?: string | null,"totals"?: Json | null,"updated_at"?: string
+                    "assessed_on"?: string,"assessors"?: (string)[],"created_at"?: string,"created_by": string,"deleted_at"?: string | null,"device_id"?: string | null,"form_version_id": string,"id": string,"language"?: string,"location_id": string,"organisation_id": string,"review_note"?: string | null,"status"?: Database["public"]['Enums']["assessment_status"],"submitted_at"?: string | null,"totals"?: Json | null,"updated_at"?: string
                   }
                   Update: {
-                    "assessed_on"?: string,"assessors"?: (string)[],"created_at"?: string,"created_by"?: string,"deleted_at"?: string | null,"device_id"?: string | null,"district_id"?: string,"form_version_id"?: string,"id"?: string,"language"?: string,"organisation_id"?: string,"review_note"?: string | null,"status"?: Database["public"]['Enums']["assessment_status"],"submitted_at"?: string | null,"totals"?: Json | null,"updated_at"?: string
+                    "assessed_on"?: string,"assessors"?: (string)[],"created_at"?: string,"created_by"?: string,"deleted_at"?: string | null,"device_id"?: string | null,"form_version_id"?: string,"id"?: string,"language"?: string,"location_id"?: string,"organisation_id"?: string,"review_note"?: string | null,"status"?: Database["public"]['Enums']["assessment_status"],"submitted_at"?: string | null,"totals"?: Json | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -60,16 +60,16 @@ isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     },{
-      foreignKeyName: "assessments_district_id_fkey"
-      columns: ["district_id"]
-isOneToOne: false
-      referencedRelation: "districts"
-      referencedColumns: ["id"]
-    },{
       foreignKeyName: "assessments_form_version_id_fkey"
       columns: ["form_version_id"]
 isOneToOne: false
       referencedRelation: "form_versions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "assessments_location_id_fkey"
+      columns: ["location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "assessments_organisation_id_fkey"
@@ -136,22 +136,46 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"districts": {
+                },"form_assignments": {
                   Row: {
-                    "active": boolean,"code": string,"id": string,"name": NonNullable<Json>,"state_id": string
+                    "created_at": string,"created_by": string | null,"form_id": string,"id": string,"location_id": string | null,"organisation_id": string,"user_id": string | null
                   }
                   Insert: {
-                    "active"?: boolean,"code": string,"id"?: string,"name": NonNullable<Json>,"state_id": string
+                    "created_at"?: string,"created_by"?: string | null,"form_id": string,"id"?: string,"location_id"?: string | null,"organisation_id": string,"user_id"?: string | null
                   }
                   Update: {
-                    "active"?: boolean,"code"?: string,"id"?: string,"name"?: NonNullable<Json>,"state_id"?: string
+                    "created_at"?: string,"created_by"?: string | null,"form_id"?: string,"id"?: string,"location_id"?: string | null,"organisation_id"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     {
-      foreignKeyName: "districts_state_id_fkey"
-      columns: ["state_id"]
+      foreignKeyName: "form_assignments_created_by_fkey"
+      columns: ["created_by"]
 isOneToOne: false
-      referencedRelation: "states"
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "form_assignments_form_id_fkey"
+      columns: ["form_id"]
+isOneToOne: false
+      referencedRelation: "forms"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "form_assignments_location_id_fkey"
+      columns: ["location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "form_assignments_organisation_id_fkey"
+      columns: ["organisation_id"]
+isOneToOne: false
+      referencedRelation: "organisations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "form_assignments_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -224,28 +248,53 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"memberships": {
+                },"locations": {
                   Row: {
-                    "created_at": string,"id": string,"organisation_id": string,"role": Database["public"]['Enums']["app_role"],"state_id": string | null,"user_id": string
+                    "active": boolean,"code": string,"created_at": string,"id": string,"level": number,"name": NonNullable<Json>,"organisation_id": string,"parent_id": string | null
                   }
                   Insert: {
-                    "created_at"?: string,"id"?: string,"organisation_id": string,"role": Database["public"]['Enums']["app_role"],"state_id"?: string | null,"user_id": string
+                    "active"?: boolean,"code": string,"created_at"?: string,"id"?: string,"level"?: number,"name": NonNullable<Json>,"organisation_id": string,"parent_id"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"organisation_id"?: string,"role"?: Database["public"]['Enums']["app_role"],"state_id"?: string | null,"user_id"?: string
+                    "active"?: boolean,"code"?: string,"created_at"?: string,"id"?: string,"level"?: number,"name"?: NonNullable<Json>,"organisation_id"?: string,"parent_id"?: string | null
                   }
                   Relationships: [
                     {
-      foreignKeyName: "memberships_organisation_id_fkey"
+      foreignKeyName: "locations_organisation_id_fkey"
       columns: ["organisation_id"]
 isOneToOne: false
       referencedRelation: "organisations"
       referencedColumns: ["id"]
     },{
-      foreignKeyName: "memberships_state_id_fkey"
-      columns: ["state_id"]
+      foreignKeyName: "locations_parent_id_fkey"
+      columns: ["parent_id"]
 isOneToOne: false
-      referencedRelation: "states"
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"memberships": {
+                  Row: {
+                    "created_at": string,"id": string,"location_id": string | null,"organisation_id": string,"role": Database["public"]['Enums']["app_role"],"user_id": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"location_id"?: string | null,"organisation_id": string,"role": Database["public"]['Enums']["app_role"],"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"location_id"?: string | null,"organisation_id"?: string,"role"?: Database["public"]['Enums']["app_role"],"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "memberships_location_id_fkey"
+      columns: ["location_id"]
+isOneToOne: false
+      referencedRelation: "locations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "memberships_organisation_id_fkey"
+      columns: ["organisation_id"]
+isOneToOne: false
+      referencedRelation: "organisations"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "memberships_user_id_fkey"
@@ -303,25 +352,6 @@ isOneToOne: false
       columns: ["updated_by"]
 isOneToOne: false
       referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
-                },"states": {
-                  Row: {
-                    "code": string,"id": string,"name": NonNullable<Json>,"organisation_id": string
-                  }
-                  Insert: {
-                    "code": string,"id"?: string,"name": NonNullable<Json>,"organisation_id": string
-                  }
-                  Update: {
-                    "code"?: string,"id"?: string,"name"?: NonNullable<Json>,"organisation_id"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "states_organisation_id_fkey"
-      columns: ["organisation_id"]
-isOneToOne: false
-      referencedRelation: "organisations"
       referencedColumns: ["id"]
     }
                   ]
@@ -412,7 +442,16 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "can_edit_assessment":
+            "assessable_form_locations":
+{ Args: { "p_user": string }; Returns: {
+"form_id": string,
+"location_id": string
+ }[]
+                           },
+"can_assess_here":
+{ Args: { "p_form_version_id": string,"p_location": string }; Returns: boolean
+                           },
+"can_edit_assessment":
 { Args: { "a": Database["public"]['Tables']["assessments"]['Row'] }; Returns: boolean
                            },
 "can_read_assessment":
@@ -445,11 +484,23 @@ isOneToOne: false
 "has_district_role":
 { Args: { "dist": string,"roles": (Database["public"]['Enums']["app_role"])[] }; Returns: boolean
                            },
+"has_location_role":
+{ Args: { "loc": string,"roles": (Database["public"]['Enums']["app_role"])[] }; Returns: boolean
+                           },
 "has_role":
 { Args: { "org": string,"roles": (Database["public"]['Enums']["app_role"])[] }; Returns: boolean
                            },
 "is_member":
 { Args: { "org": string }; Returns: boolean
+                           },
+"location_in_subtree":
+{ Args: { "p_location": string,"p_root": string }; Returns: boolean
+                           },
+"my_assessable_form_locations":
+{ Args: { [_ in never]: never }; Returns: {
+"form_id": string,
+"location_id": string
+ }[]
                            },
 "publish_form_version":
 { Args: { "p_checksum": string,"p_note": string,"p_version_id": string }; Returns: {
@@ -480,10 +531,10 @@ isOneToOne: false
 "created_by": string,
 "deleted_at": string | null,
 "device_id": string | null,
-"district_id": string,
 "form_version_id": string,
 "id": string,
 "language": string,
+"location_id": string,
 "organisation_id": string,
 "review_note": string | null,
 "status": Database["public"]['Enums']["assessment_status"],
@@ -508,10 +559,10 @@ isOneToOne: false
 "created_by": string,
 "deleted_at": string | null,
 "device_id": string | null,
-"district_id": string,
 "form_version_id": string,
 "id": string,
 "language": string,
+"location_id": string,
 "organisation_id": string,
 "review_note": string | null,
 "status": Database["public"]['Enums']["assessment_status"],
@@ -524,7 +575,13 @@ isOneToOne: false
         to: "assessments"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"user_can_assess":
+{ Args: { "p_form_version_id": string,"p_location": string,"p_user": string }; Returns: boolean
+                           },
+"user_has_location_role":
+{ Args: { "p_location": string,"p_roles": (Database["public"]['Enums']["app_role"])[],"p_user": string }; Returns: boolean
+                           }
           }
           Enums: {
             "app_role": "super_admin"|"form_editor"|"translator"|"manager"|"assessor"|"viewer","assessment_status": "draft"|"submitted"|"returned"|"approved","ticket_status": "open"|"pending"|"closed","version_status": "draft"|"published"|"archived"

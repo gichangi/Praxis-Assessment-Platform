@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' show pi;
@@ -16,6 +17,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../app/theme.dart';
 import '../../data/repositories/assessment_repository.dart';
 import '../../data/database/app_database.dart';
+import '../../data/sync/sync_engine.dart';
 import '../../domain/form_definition.dart';
 import '../../domain/scoring.dart';
 import '../../domain/text_resolver.dart';
@@ -47,19 +49,24 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
 
   Future<void> _load() async {
     final repo = ref.read(assessmentRepoProvider);
+    final assessment = await repo.getAssessment(widget.assessmentId);
+    if (assessment == null) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
+
+    // Always the version this assessment was started on, never "the newest form on the phone".
     final results = await Future.wait([
-      repo.getAssessment(widget.assessmentId),
-      repo.getLatestFormVersion(),
+      repo.getFormVersion(assessment.formVersionId),
       repo.getResponses(widget.assessmentId),
       repo.getMembers(),
     ]);
 
-    final assessment = results[0] as LocalAssessment?;
-    final fv = results[1] as LocalFormVersion?;
-    final responses = results[2] as List<LocalResponse>;
-    final members = results[3] as List<LocalMember>;
+    final fv = results[0] as LocalFormVersion?;
+    final responses = results[1] as List<LocalResponse>;
+    final members = results[2] as List<LocalMember>;
 
-    if (fv == null || assessment == null) {
+    if (fv == null) {
       if (mounted) setState(() => _loading = false);
       return;
     }
@@ -123,8 +130,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     if (confirmed != true || !mounted) return;
 
     setState(() => _submitting = true);
-    // Mark as submitted locally — sync engine pushes to server
+    // Mark as completed locally; the sync engine uploads it as soon as there is a connection.
     await ref.read(assessmentRepoProvider).updateStatus(widget.assessmentId, 'submitted');
+    unawaited(ref.read(syncEngineProvider).sync());
 
     if (mounted) {
       setState(() => _submitting = false);
@@ -433,7 +441,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: isDraft
+      bottomNavigationBar: (isDraft || isReturned)
           ? SafeArea(
               child: Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),

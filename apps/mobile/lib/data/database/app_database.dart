@@ -22,14 +22,19 @@ part 'app_database.g.dart';
     LocalHelpArticles,
     LocalAttachments,
     LocalMembers,
+    LocalForms,
+    LocalFormLocations,
   ],
   daos: [AssessmentsDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  /// For tests: pass an in-memory executor.
+  AppDatabase.forTesting(super.e);
+
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -54,6 +59,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         await m.createTable(localMembers);
         await m.addColumn(localAssessments, localAssessments.assessorsJson);
+      }
+      if (from < 5) {
+        await m.createTable(localForms);
+        await m.createTable(localFormLocations);
+        await m.addColumn(localFormVersions, localFormVersions.status);
       }
     },
   );

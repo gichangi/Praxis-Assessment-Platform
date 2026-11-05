@@ -38,7 +38,15 @@
     "score": "النتيجة",
     "summary": "ملخص",
     "guidance": "إرشادات",
-    "note": "ملاحظة"
+    "note": "ملاحظة",
+    "status_completed": "مكتمل",
+    "status_synced": "تمت المزامنة",
+    "filter_completed": "المكتملة",
+    "filter_synced": "المُزامَنة",
+    "select_form": "النموذج",
+    "no_forms_assigned": "لا توجد نماذج مُسندة إليك بعد",
+    "no_forms_assigned_hint": "تظهر النماذج المُسندة إليك هنا بعد المزامنة. اتصل بالإنترنت ثم اضغط مزامنة الآن.",
+    "waiting_to_sync": "في انتظار المزامنة"
   },
   "settings": {
     "title": "الإعدادات",

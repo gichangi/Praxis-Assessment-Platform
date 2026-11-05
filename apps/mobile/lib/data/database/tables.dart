@@ -6,10 +6,32 @@ class LocalFormVersions extends Table {
   TextColumn get formId => text()();
   TextColumn get version => text()();
   TextColumn get definitionJson => text()();
+  TextColumn get status => text().withDefault(const Constant('published'))(); // published|archived
   DateTimeColumn get pulledAt => dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// Forms the user can see: assigned ones, plus those behind existing assessments.
+class LocalForms extends Table {
+  TextColumn get id => text()();
+  TextColumn get organisationId => text()();
+  TextColumn get key => text()();
+  TextColumn get titleJson => text()(); // jsonb {"en":..., "so":..., "ar":...}
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Where each form may be assessed by this user. Computed by the server (assignments
+/// expanded over the location tree and capped by the user's own access); replaced on every sync.
+class LocalFormLocations extends Table {
+  TextColumn get formId => text()();
+  TextColumn get locationId => text()();
+
+  @override
+  Set<Column> get primaryKey => {formId, locationId};
 }
 
 /// Local mirror of server `assessments` table.

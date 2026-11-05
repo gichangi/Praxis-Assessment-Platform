@@ -83,6 +83,11 @@ begin
     admin_id, admin_id, now()
   ) on conflict (form_id, version) do nothing;
 
+  -- ── Assignment: every assessor may use the demo form at every location ─────────
+  insert into form_assignments (organisation_id, form_id, location_id, user_id)
+  values (org_id, v_form_id, null, null)
+  on conflict do nothing;
+
   -- ── Sample assessments ────────────────────────────────────────────────────────
   -- Garowe: APPROVED  — full responses, score 116/228 (matches Garowe fixture)
   -- Bosaso: SUBMITTED — all items value 4, score 152/228

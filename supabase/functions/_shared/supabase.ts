@@ -9,6 +9,18 @@ export function adminClient(): SupabaseClient {
   )
 }
 
+/** Client that acts as the caller (RLS and auth.uid() apply). Use for functions that check the caller's identity. */
+export function userClient(token: string): SupabaseClient {
+  return createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
+    {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+      auth: { autoRefreshToken: false, persistSession: false },
+    },
+  )
+}
+
 /** Verify a Bearer JWT and return the authenticated user, or throw. */
 export async function requireUser(req: Request) {
   const token = req.headers.get('Authorization')?.replace('Bearer ', '').trim()

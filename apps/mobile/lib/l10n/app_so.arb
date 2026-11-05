@@ -289,5 +289,21 @@
   "auth_server_invalid_url": "Gali URL sax ah oo bilaabma http:// ama https://",
   "@auth_server_invalid_url": { "description": "server URL validation error" },
   "auth_server_error": "Xiriirka serverka ma suurtogalin",
-  "@auth_server_error": { "description": "server reinit error" }
+  "@auth_server_error": { "description": "server reinit error" },
+  "assessments_status_completed": "La dhammeystiray",
+  "@assessments_status_completed": { "description": "assessments status completed" },
+  "assessments_status_synced": "La waafajiyey",
+  "@assessments_status_synced": { "description": "assessments status synced" },
+  "assessments_filter_completed": "La dhammeystiray",
+  "@assessments_filter_completed": { "description": "assessments filter completed" },
+  "assessments_filter_synced": "La waafajiyey",
+  "@assessments_filter_synced": { "description": "assessments filter synced" },
+  "assessments_select_form": "Foomka",
+  "@assessments_select_form": { "description": "assessments select form" },
+  "assessments_no_forms_assigned": "Weli foom laguu xilsaarin",
+  "@assessments_no_forms_assigned": { "description": "assessments no forms assigned" },
+  "assessments_no_forms_assigned_hint": "Foomamka laguu xilsaaro halkan ayay ka soo muuqan doonaan marka la waafajiyo. Ku xidhma internetka, kadibna taabo Is-waafaji hadda.",
+  "@assessments_no_forms_assigned_hint": { "description": "assessments no forms assigned hint" },
+  "assessments_waiting_to_sync": "Sugaya in la waafajiyo",
+  "@assessments_waiting_to_sync": { "description": "assessments waiting to sync" }
 }

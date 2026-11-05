@@ -7,16 +7,21 @@ import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { t, fmtDate } from "@/lib/utils";
+import { FORM_MANAGER_ROLES, myMembership } from "@/lib/org";
 import { NewFormButton } from "./NewFormButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function FormsPage() {
   const sb = createClient();
-  const { data: forms, error } = await sb
-    .from("forms")
-    .select("id, key, title, created_at, form_versions(id, version, status, updated_at)")
-    .order("created_at", { ascending: false });
+  const [{ data: forms, error }, manager] = await Promise.all([
+    sb
+      .from("forms")
+      .select("id, key, title, created_at, form_versions(id, version, status, updated_at)")
+      .order("created_at", { ascending: false }),
+    myMembership(sb, FORM_MANAGER_ROLES),
+  ]);
+  const canManage = !!manager;
   return (
     <div className="page-container">
       <PageHeader
@@ -24,7 +29,7 @@ export default async function FormsPage() {
         eyebrow="BUILD WITH PURPOSE"
         description="Build flexible questionnaires for different assessment areas, manage versions, and equip your team."
       >
-        <NewFormButton />
+        {canManage && <NewFormButton />}
       </PageHeader>
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
         <span>
@@ -43,10 +48,12 @@ export default async function FormsPage() {
             description={
               error
                 ? "Refresh this page to try again."
-                : "Start with a form, organise it into sections, and publish it for your field team."
+                : canManage
+                  ? "Start with a form, organise it into sections, and publish it for your field team."
+                  : "A super admin or form editor will publish forms for your team here."
             }
           >
-            {!error && <NewFormButton />}
+            {!error && canManage && <NewFormButton />}
           </EmptyState>
         </Card>
       ) : (

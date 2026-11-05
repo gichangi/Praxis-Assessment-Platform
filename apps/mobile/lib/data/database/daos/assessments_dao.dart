@@ -12,6 +12,8 @@ part 'assessments_dao.g.dart';
   LocalHelpArticles,
   LocalAttachments,
   LocalMembers,
+  LocalForms,
+  LocalFormLocations,
 ])
 class AssessmentsDao extends DatabaseAccessor<AppDatabase> with _$AssessmentsDaoMixin {
   AssessmentsDao(super.db);
@@ -57,6 +59,14 @@ class AssessmentsDao extends DatabaseAccessor<AppDatabase> with _$AssessmentsDao
       (update(localResponses)..where((t) => t.assessmentId.equals(assessmentId)))
           .write(LocalResponsesCompanion(dirty: const Value(false)));
 
+  /// Assessments that still have answers waiting to be uploaded.
+  Stream<Set<String>> watchAssessmentIdsWithPendingResponses() {
+    final q = selectOnly(localResponses, distinct: true)
+      ..addColumns([localResponses.assessmentId])
+      ..where(localResponses.dirty.equals(true));
+    return q.watch().map((rows) => {for (final r in rows) r.read(localResponses.assessmentId)!});
+  }
+
   // ── Locations ──────────────────────────────────────────────────────────────
 
   Future<List<LocalLocation>> allLocations() => select(localLocations).get();
@@ -66,12 +76,45 @@ class AssessmentsDao extends DatabaseAccessor<AppDatabase> with _$AssessmentsDao
 
   // ── Form versions ──────────────────────────────────────────────────────────
 
-  Future<LocalFormVersion?> latestFormVersion() =>
-      (select(localFormVersions)..orderBy([(t) => OrderingTerm.desc(t.pulledAt)])..limit(1))
-          .getSingleOrNull();
+  Future<LocalFormVersion?> formVersionById(String id) =>
+      (select(localFormVersions)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  Future<List<LocalFormVersion>> publishedVersionsOf(String formId) => (select(localFormVersions)
+        ..where((t) => t.formId.equals(formId) & t.status.equals('published')))
+      .get();
+
+  /// Ids the phone already holds, sent to the server so it only returns what is missing.
+  Future<List<String>> allFormVersionIds() async {
+    final q = selectOnly(localFormVersions)..addColumns([localFormVersions.id]);
+    return [for (final r in await q.get()) r.read(localFormVersions.id)!];
+  }
+
+  Future<Map<String, String>> formIdByVersionId() async {
+    final q = selectOnly(localFormVersions)
+      ..addColumns([localFormVersions.id, localFormVersions.formId]);
+    return {
+      for (final r in await q.get())
+        r.read(localFormVersions.id)!: r.read(localFormVersions.formId)!,
+    };
+  }
 
   Future<int> upsertFormVersion(LocalFormVersionsCompanion row) =>
       into(localFormVersions).insertOnConflictUpdate(row);
+
+  // ── Forms and assignments ──────────────────────────────────────────────────
+
+  Future<List<LocalForm>> allForms() => select(localForms).get();
+
+  Future<void> upsertForms(List<LocalFormsCompanion> rows) =>
+      batch((b) => b.insertAllOnConflictUpdate(localForms, rows));
+
+  Future<List<LocalFormLocation>> allFormLocations() => select(localFormLocations).get();
+
+  /// The server sends the complete current list on every sync, so removed assignments vanish.
+  Future<void> replaceFormLocations(List<LocalFormLocationsCompanion> rows) => transaction(() async {
+        await delete(localFormLocations).go();
+        await batch((b) => b.insertAll(localFormLocations, rows, mode: InsertMode.insertOrIgnore));
+      });
 
   // ── Help articles ──────────────────────────────────────────────────────────
 

@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
+import { FORM_MANAGER_ROLES, myMembership } from "@/lib/org";
 import { Plus } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 
@@ -26,9 +27,12 @@ export function NewFormButton() {
   async function create() {
     if (!title.trim() || !key.trim()) return;
     setLoading(true);
-    const { data: mem } = await sb.from("memberships").select("organisation_id").limit(1).single();
+    const mem = await myMembership(sb, FORM_MANAGER_ROLES);
     if (!mem) {
-      toast({ title: "No organisation", variant: "destructive" });
+      toast({
+        title: "Only a super admin or form editor can create forms",
+        variant: "destructive",
+      });
       setLoading(false);
       return;
     }
@@ -43,7 +47,11 @@ export function NewFormButton() {
       .select("id")
       .single();
     if (formErr) {
-      toast({ title: formErr.message, variant: "destructive" });
+      toast({
+        title:
+          formErr.code === "23505" ? "A form with this key already exists" : formErr.message,
+        variant: "destructive",
+      });
       setLoading(false);
       return;
     }
@@ -66,6 +74,8 @@ export function NewFormButton() {
       .select("id")
       .single();
     if (fvErr) {
+      // Don't leave a form with no version behind.
+      await sb.from("forms").delete().eq("id", form.id);
       toast({ title: fvErr.message, variant: "destructive" });
       setLoading(false);
       return;

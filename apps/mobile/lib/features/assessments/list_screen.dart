@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -10,8 +11,16 @@ import '../../app/theme.dart';
 import '../../data/repositories/assessment_repository.dart';
 import '../../data/database/app_database.dart';
 import '../../data/sync/sync_engine.dart';
+import '../../domain/assessment_stage.dart';
 
-enum _StatusFilter { all, draft, submitted, returned }
+enum _StatusFilter { all, draft, completed, synced, returned }
+
+/// An assessment together with where it stands (draft / completed / synced / …).
+class _Entry {
+  const _Entry(this.assessment, this.stage);
+  final LocalAssessment assessment;
+  final AssessmentStage stage;
+}
 
 class AssessmentsListScreen extends ConsumerStatefulWidget {
   const AssessmentsListScreen({super.key});
@@ -23,22 +32,56 @@ class AssessmentsListScreen extends ConsumerStatefulWidget {
 class _AssessmentsListScreenState extends ConsumerState<AssessmentsListScreen> {
   _StatusFilter _filter = _StatusFilter.all;
 
-  List<LocalAssessment> _applyFilter(List<LocalAssessment> all) {
-    return switch (_filter) {
-      _StatusFilter.all => all,
-      _StatusFilter.draft => all.where((a) => a.status == 'draft').toList(),
-      _StatusFilter.submitted => all.where((a) => a.status == 'submitted').toList(),
-      _StatusFilter.returned => all.where((a) => a.status == 'returned').toList(),
-    };
+  late final Stream<List<LocalAssessment>> _assessments;
+  late final Stream<Set<String>> _pendingResponses;
+  StreamSubscription<SyncStatus>? _syncSub;
+  AssessmentLookups? _lookups;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = ref.read(assessmentRepoProvider);
+    // Created once: a new stream per rebuild would flash the spinner on every filter tap.
+    _assessments = repo.watchAssessments();
+    _pendingResponses = repo.watchPendingResponseIds();
+    // Names for forms and locations arrive with a sync, so refresh them when one finishes.
+    _syncSub = ref.read(syncEngineProvider).statusStream.listen((status) {
+      if (status is! SyncProgress) _loadLookups();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadLookups());
   }
 
-  int _countByStatus(List<LocalAssessment> all, String status) =>
-      all.where((a) => a.status == status).length;
+  @override
+  void dispose() {
+    _syncSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadLookups() async {
+    if (!mounted) return;
+    final lookups = await ref
+        .read(assessmentRepoProvider)
+        .loadLookups(Localizations.localeOf(context).languageCode);
+    if (mounted) setState(() => _lookups = lookups);
+  }
+
+  Future<void> _syncNow() => ref.read(syncEngineProvider).sync();
+
+  List<_Entry> _applyFilter(List<_Entry> all) {
+    bool keep(_Entry e) => switch (_filter) {
+          _StatusFilter.all => true,
+          _StatusFilter.draft => e.stage == AssessmentStage.draft,
+          _StatusFilter.completed => e.stage == AssessmentStage.completed,
+          _StatusFilter.synced => e.stage == AssessmentStage.synced,
+          _StatusFilter.returned => e.stage == AssessmentStage.returned,
+        };
+    return all.where(keep).toList();
+  }
+
+  int _count(List<_Entry> all, AssessmentStage stage) => all.where((e) => e.stage == stage).length;
 
   @override
   Widget build(BuildContext context) {
-    final stream = ref.watch(assessmentRepoProvider).watchAssessments();
-
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -46,7 +89,7 @@ class _AssessmentsListScreenState extends ConsumerState<AssessmentsListScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(tr('assessments_title')),
-            _SyncSubtitle(),
+            _SyncSubtitle(onTap: _syncNow),
           ],
         ),
         backgroundColor: AppTheme.surface,
@@ -54,6 +97,11 @@ class _AssessmentsListScreenState extends ConsumerState<AssessmentsListScreen> {
         titleSpacing: 16,
         actions: [
           _PendingChip(),
+          IconButton(
+            icon: const Icon(Icons.sync),
+            tooltip: tr('sync_now'),
+            onPressed: _syncNow,
+          ),
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 10),
             child: InkWell(
@@ -103,69 +151,101 @@ class _AssessmentsListScreenState extends ConsumerState<AssessmentsListScreen> {
         ],
       ),
       body: StreamBuilder<List<LocalAssessment>>(
-        stream: stream,
+        stream: _assessments,
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final all = snap.data ?? [];
-          final filtered = _applyFilter(all);
+          final assessments = snap.data ?? [];
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Filter chip bar
-              SizedBox(
-                height: 44,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
-                  children: [
-                    _FilterChip(
-                      label: '${tr('assessments_filter_all')} (${all.length})',
-                      active: _filter == _StatusFilter.all,
-                      onTap: () => setState(() => _filter = _StatusFilter.all),
+          return StreamBuilder<Set<String>>(
+            stream: _pendingResponses,
+            initialData: const <String>{},
+            builder: (context, pendingSnap) {
+              final pending = pendingSnap.data ?? const <String>{};
+              final all = [
+                for (final a in assessments)
+                  _Entry(
+                    a,
+                    assessmentStage(
+                      status: a.status,
+                      hasPendingChanges: a.dirty || pending.contains(a.id),
                     ),
-                    const SizedBox(width: 6),
-                    _FilterChip(
-                      label: '${tr('assessments_filter_drafts')} (${_countByStatus(all, 'draft')})',
-                      active: _filter == _StatusFilter.draft,
-                      onTap: () => setState(() => _filter = _StatusFilter.draft),
-                    ),
-                    const SizedBox(width: 6),
-                    _FilterChip(
-                      label: '${tr('assessments_filter_submitted')} (${_countByStatus(all, 'submitted')})',
-                      active: _filter == _StatusFilter.submitted,
-                      onTap: () => setState(() => _filter = _StatusFilter.submitted),
-                    ),
-                    const SizedBox(width: 6),
-                    _FilterChip(
-                      label: '${tr('assessments_filter_returned')} (${_countByStatus(all, 'returned')})',
-                      active: _filter == _StatusFilter.returned,
-                      onTap: () => setState(() => _filter = _StatusFilter.returned),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+              ];
+              final filtered = _applyFilter(all);
 
-              // List
-              Expanded(
-                child: filtered.isEmpty
-                    ? _EmptyState(onNew: () => context.push(Routes.newAssessment))
-                    : ListView.builder(
-                        padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 16),
-                        itemCount: filtered.length + 1,
-                        itemBuilder: (ctx, i) {
-                          if (i == filtered.length) {
-                            return _NewAssessmentCard(
-                              onTap: () => context.push(Routes.newAssessment),
-                            );
-                          }
-                          return _AssessmentCard(assessment: filtered[i]);
-                        },
-                      ),
-              ),
-            ],
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Filter chip bar
+                  SizedBox(
+                    height: 44,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 0),
+                      children: [
+                        _FilterChip(
+                          label: '${tr('assessments_filter_all')} (${all.length})',
+                          active: _filter == _StatusFilter.all,
+                          onTap: () => setState(() => _filter = _StatusFilter.all),
+                        ),
+                        const SizedBox(width: 6),
+                        _FilterChip(
+                          label:
+                              '${tr('assessments_filter_drafts')} (${_count(all, AssessmentStage.draft)})',
+                          active: _filter == _StatusFilter.draft,
+                          onTap: () => setState(() => _filter = _StatusFilter.draft),
+                        ),
+                        const SizedBox(width: 6),
+                        _FilterChip(
+                          label:
+                              '${tr('assessments_filter_completed')} (${_count(all, AssessmentStage.completed)})',
+                          active: _filter == _StatusFilter.completed,
+                          onTap: () => setState(() => _filter = _StatusFilter.completed),
+                        ),
+                        const SizedBox(width: 6),
+                        _FilterChip(
+                          label:
+                              '${tr('assessments_filter_synced')} (${_count(all, AssessmentStage.synced)})',
+                          active: _filter == _StatusFilter.synced,
+                          onTap: () => setState(() => _filter = _StatusFilter.synced),
+                        ),
+                        const SizedBox(width: 6),
+                        _FilterChip(
+                          label:
+                              '${tr('assessments_filter_returned')} (${_count(all, AssessmentStage.returned)})',
+                          active: _filter == _StatusFilter.returned,
+                          onTap: () => setState(() => _filter = _StatusFilter.returned),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // List
+                  Expanded(
+                    child: filtered.isEmpty
+                        ? _EmptyState(onNew: () => context.push(Routes.newAssessment))
+                        : RefreshIndicator(
+                            onRefresh: _syncNow,
+                            child: ListView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 16),
+                              itemCount: filtered.length + 1,
+                              itemBuilder: (ctx, i) {
+                                if (i == filtered.length) {
+                                  return _NewAssessmentCard(
+                                    onTap: () => context.push(Routes.newAssessment),
+                                  );
+                                }
+                                return _AssessmentCard(entry: filtered[i], lookups: _lookups);
+                              },
+                            ),
+                          ),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
@@ -212,6 +292,10 @@ class _FilterChip extends StatelessWidget {
 // ── Sync subtitle ─────────────────────────────────────────────────────────────
 
 class _SyncSubtitle extends ConsumerWidget {
+  const _SyncSubtitle({required this.onTap});
+
+  final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return StreamBuilder<SyncStatus>(
@@ -225,9 +309,12 @@ class _SyncSubtitle extends ConsumerWidget {
           SyncConflict() => tr('sync_conflict'),
           SyncIdle() => tr('sync_now'),
         };
-        return Text(
-          label,
-          style: TextStyle(fontSize: 11, color: AppTheme.muted),
+        return InkWell(
+          onTap: onTap,
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 11, color: AppTheme.muted),
+          ),
         );
       },
     );
@@ -276,13 +363,27 @@ class _PendingChip extends ConsumerWidget {
 // ── Assessment card ───────────────────────────────────────────────────────────
 
 class _AssessmentCard extends StatelessWidget {
-  final LocalAssessment assessment;
-  const _AssessmentCard({required this.assessment});
+  final _Entry entry;
+  final AssessmentLookups? lookups;
+  const _AssessmentCard({required this.entry, required this.lookups});
 
   @override
   Widget build(BuildContext context) {
-    final statusInfo = _statusInfo(assessment.status);
+    final assessment = entry.assessment;
+    final stage = entry.stage;
+    final statusInfo = _stageInfo(stage);
     final totals = _parseTotals(assessment.totalsJson);
+
+    final formTitle = lookups?.formTitleByVersionId[assessment.formVersionId] ?? '';
+    final locationName = lookups?.locationNameById[assessment.locationId] ?? '';
+    // Without names yet (first launch, before a sync) fall back to the date alone.
+    final heading = formTitle.isNotEmpty
+        ? formTitle
+        : (locationName.isNotEmpty ? locationName : assessment.assessedOn);
+    final subtitle = [
+      if (formTitle.isNotEmpty && locationName.isNotEmpty) locationName,
+      assessment.assessedOn,
+    ].join(' · ');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
@@ -299,22 +400,25 @@ class _AssessmentCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      assessment.locationId,
+                      heading,
                       style: Theme.of(context).textTheme.titleSmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   _StatusPill(label: statusInfo.$1, color: statusInfo.$2, tint: statusInfo.$3),
                 ],
               ),
 
               const SizedBox(height: 4),
               Text(
-                '${assessment.assessedOn} · ${assessment.createdBy}',
+                subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.muted),
               ),
 
               // Returned note
-              if (assessment.status == 'returned' &&
+              if (stage == AssessmentStage.returned &&
                   assessment.reviewNote != null &&
                   assessment.reviewNote!.isNotEmpty) ...[
                 const SizedBox(height: 8),
@@ -339,7 +443,7 @@ class _AssessmentCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: totals != null && totals.$2 > 0 ? totals.$1 / totals.$2 : 0,
                   backgroundColor: AppTheme.divider,
-                  color: assessment.status == 'approved' ? AppTheme.good : AppTheme.primary,
+                  color: stage == AssessmentStage.approved ? AppTheme.good : AppTheme.primary,
                   minHeight: 4,
                 ),
               ),
@@ -347,16 +451,14 @@ class _AssessmentCard extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  if (assessment.dirty)
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(end: 8),
-                      child: Icon(Icons.cloud_upload_outlined, size: 14, color: AppTheme.muted),
+                  _syncIndicator(stage),
+                  Expanded(
+                    child: Text(
+                      totals != null
+                          ? '${totals.$1.toInt()} / ${totals.$2.toInt()} pts'
+                          : tr('assessments_status_draft'),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.muted),
                     ),
-                  Text(
-                    totals != null
-                        ? '${totals.$1.toInt()} / ${totals.$2.toInt()} pts'
-                        : tr('assessments_status_draft'),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.muted),
                   ),
                 ],
               ),
@@ -367,23 +469,63 @@ class _AssessmentCard extends StatelessWidget {
     );
   }
 
-  (String, Color, Color) _statusInfo(String status) => switch (status) {
-        'submitted' => (
-            tr('assessments_status_submitted'),
+  /// Cloud icon: waiting to upload (completed) or safely on the server (synced).
+  Widget _syncIndicator(AssessmentStage stage) {
+    final (icon, color, label) = switch (stage) {
+      AssessmentStage.completed => (
+          Icons.cloud_upload_outlined,
+          AppTheme.logistics,
+          tr('assessments_waiting_to_sync'),
+        ),
+      AssessmentStage.synced => (Icons.cloud_done_outlined, AppTheme.good, null),
+      _ => (null, AppTheme.muted, null),
+    };
+    if (icon == null) {
+      // Drafts and returned work show the icon only while edits are still on the phone.
+      return entry.assessment.dirty
+          ? Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8),
+              child: Icon(Icons.cloud_upload_outlined, size: 14, color: AppTheme.muted),
+            )
+          : const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          if (label != null) ...[
+            const SizedBox(width: 4),
+            Text(label, style: TextStyle(fontSize: 12, color: color)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  (String, Color, Color) _stageInfo(AssessmentStage stage) => switch (stage) {
+        AssessmentStage.completed => (
+            tr('assessments_status_completed'),
             const Color(0xFF1D5C63),
             const Color(0xFFE3EEEE),
           ),
-        'returned' => (
+        AssessmentStage.synced => (
+            tr('assessments_status_synced'),
+            AppTheme.good,
+            AppTheme.goodTint,
+          ),
+        AssessmentStage.returned => (
             tr('assessments_status_returned'),
             AppTheme.logistics,
             const Color(0xFFF6E6D6),
           ),
-        'approved' => (
+        AssessmentStage.approved => (
             tr('assessments_status_approved'),
             AppTheme.good,
             AppTheme.goodTint,
           ),
-        _ => (
+        AssessmentStage.draft => (
             tr('assessments_status_draft'),
             AppTheme.muted,
             const Color(0xFFEDE8DD),

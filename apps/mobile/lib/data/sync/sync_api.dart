@@ -9,34 +9,52 @@ class SyncRequest {
     this.deviceId,
     required this.push,
     this.cursor,
+    this.knownFormVersionIds = const [],
   });
 
   final String? deviceId;
   final List<Map<String, dynamic>> push;
   final String? cursor;
 
+  /// Form versions already on the phone, so the server only sends what is missing.
+  final List<String> knownFormVersionIds;
+
   Map<String, dynamic> toJson() => {
         if (deviceId != null) 'device_id': deviceId,
         'push': push,
         if (cursor != null) 'cursor': cursor,
+        'known_form_version_ids': knownFormVersionIds,
       };
 }
 
 // ─── Response ─────────────────────────────────────────────────────────────────
 
 class SyncRejection {
-  const SyncRejection({required this.table, required this.id, required this.reason});
+  const SyncRejection({
+    required this.table,
+    required this.id,
+    required this.reason,
+    this.status,
+  });
 
   final String table;
   final String id;
   final String reason;
 
+  /// For a refused submission: the workflow status the server kept ('draft' or 'returned').
+  final String? status;
+
   bool get isConflict => reason.startsWith('conflict:');
+  bool get isSubmitFailure => reason.startsWith('submit_failed:');
+
+  /// The server's explanation for a refused submission.
+  String get submitMessage => reason.substring('submit_failed:'.length);
 
   factory SyncRejection.fromJson(Map<String, dynamic> j) => SyncRejection(
         table: j['table'] as String,
         id: j['id'] as String,
         reason: j['reason'] as String,
+        status: j['status'] as String?,
       );
 }
 
@@ -48,6 +66,9 @@ class SyncPull {
     required this.helpArticles,
     required this.locations,
     required this.members,
+    required this.forms,
+    required this.assignments,
+    required this.hasAssignments,
   });
 
   final List<Map<String, dynamic>> assessments;
@@ -57,6 +78,15 @@ class SyncPull {
   final List<Map<String, dynamic>> locations;
   final List<Map<String, dynamic>> members;
 
+  /// Titles of the forms the phone can show.
+  final List<Map<String, dynamic>> forms;
+
+  /// The complete current list of (form_id, location_id) pairs this user may assess.
+  final List<Map<String, dynamic>> assignments;
+
+  /// False when talking to a server that predates assignments; its empty list must not wipe ours.
+  final bool hasAssignments;
+
   factory SyncPull.fromJson(Map<String, dynamic> j) => SyncPull(
         assessments: _list(j['assessments']),
         responses: _list(j['responses']),
@@ -64,6 +94,9 @@ class SyncPull {
         helpArticles: _list(j['help_articles']),
         locations: _list(j['locations']),
         members: _list(j['members']),
+        forms: _list(j['forms']),
+        assignments: _list(j['assignments']),
+        hasAssignments: j.containsKey('assignments'),
       );
 
   static List<Map<String, dynamic>> _list(dynamic v) =>

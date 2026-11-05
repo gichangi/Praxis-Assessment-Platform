@@ -2,19 +2,25 @@
  * sync — offline-first sync endpoint for the Flutter mobile app.
  *
  * POST /sync
- * Body  { device_id?, push: PushRow[], cursor: string | null }
+ * Body  { device_id?, push: PushRow[], cursor: string | null, known_form_version_ids?: string[] }
  * Reply { pull: {...}, cursor: string, pushed: number, rejected: RejectedRow[] }
  *
  * Push tables: assessments, responses (read-only from server: status, totals)
- * Pull tables: assessments, responses, form_versions, help_articles
+ * Pull tables: assessments, responses, form_versions, help_articles, locations, members,
+ *              forms + assignments (which form may be assessed at which location, for this user)
  * Conflict rule: newer updated_at wins; server row beats client row on tie.
+ *
+ * A new assessment is accepted only for a form/location assigned to the caller.
+ * A pushed assessment with status 'submitted' asks the server to submit it once its
+ * responses have landed; submit_assessment() decides, and a refusal is reported back
+ * as reason 'submit_failed:…' together with the status the server kept.
  */
 
 import { corsHeaders, options, json, err } from '../_shared/cors.ts'
-import { adminClient, requireUser, requireOrg } from '../_shared/supabase.ts'
+import { adminClient, userClient, requireUser, requireOrg } from '../_shared/supabase.ts'
 
 type PushRow = { table: string; record: Record<string, unknown> }
-type Rejected = { table: string; id: string; reason: string }
+type Rejected = { table: string; id: string; reason: string; status?: string }
 
 const PUSH_TABLES = new Set(['assessments', 'responses'])
 
@@ -25,13 +31,18 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return options()
 
   try {
-    const { user } = await requireUser(req)
+    const { user, token } = await requireUser(req)
     const admin = adminClient()
     const { organisation_id: orgId } = await requireOrg(admin, user.id)
 
     // Check device is not revoked.
-    const body = await req.json() as { device_id?: string; push?: PushRow[]; cursor?: string | null }
-    const { device_id, push = [], cursor } = body
+    const body = await req.json() as {
+      device_id?: string
+      push?: PushRow[]
+      cursor?: string | null
+      known_form_version_ids?: string[]
+    }
+    const { device_id, push = [], cursor, known_form_version_ids = [] } = body
 
     if (device_id) {
       const { data: dev } = await admin.from('devices').select('revoked').eq('id', device_id).single()
@@ -41,6 +52,8 @@ Deno.serve(async (req) => {
     // ── PUSH ──────────────────────────────────────────────────────────────────
     const rejected: Rejected[] = []
     let pushed = 0
+    // Submitting needs the responses on the server first, so it runs after the whole push.
+    const toSubmit: string[] = []
 
     for (const row of push) {
       if (!PUSH_TABLES.has(row.table)) {
@@ -74,6 +87,18 @@ Deno.serve(async (req) => {
               rejected.push({ table: 'assessments', id: String(rec.id), reason: 'conflict:server_newer' })
               continue
             }
+          } else {
+            // Brand-new assessment: the form must be assigned to this user at this location.
+            const { data: allowed, error: allowErr } = await admin.rpc('user_can_assess', {
+              p_user: user.id,
+              p_form_version_id: rec.form_version_id,
+              p_location: rec.location_id,
+            })
+            if (allowErr) throw allowErr
+            if (!allowed) {
+              rejected.push({ table: 'assessments', id: String(rec.id), reason: 'not_assigned' })
+              continue
+            }
           }
 
           // Strip protected fields; restore from server if the row already exists.
@@ -88,6 +113,11 @@ Deno.serve(async (req) => {
           const { error } = await admin.from('assessments').upsert(safe, { onConflict: 'id' })
           if (error) throw error
           pushed++
+
+          const serverStatus = (existing?.status as string | undefined) ?? 'draft'
+          if (rec.status === 'submitted' && (serverStatus === 'draft' || serverStatus === 'returned')) {
+            toSubmit.push(String(rec.id))
+          }
 
         } else if (row.table === 'responses') {
           const rec = row.record
@@ -142,10 +172,49 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── SUBMIT ────────────────────────────────────────────────────────────────
+    // Runs as the caller so submit_assessment() sees auth.uid(). The server recomputes
+    // the totals and refuses if anything is unanswered; the phone then reverts its copy.
+    if (toSubmit.length > 0) {
+      const asUser = userClient(token)
+      for (const id of toSubmit) {
+        const { error } = await asUser.rpc('submit_assessment', { p_id: id })
+        if (error) {
+          const { data: cur } = await admin.from('assessments').select('status').eq('id', id).single()
+          rejected.push({
+            table: 'assessments',
+            id,
+            reason: `submit_failed:${error.message}`,
+            status: (cur?.status as string | undefined) ?? 'draft',
+          })
+        }
+      }
+    }
+
     // ── PULL ──────────────────────────────────────────────────────────────────
     const since = cursor ? new Date(cursor).toISOString() : new Date(0).toISOString()
+    const sinceMs = new Date(since).getTime()
 
-    const [asmntRes, fvRes, helpRes, locationRes, memberRes] = await Promise.all([
+    // Which (form, location) pairs this user may start assessments for, right now.
+    const { data: pairRows, error: pairErr } = await admin.rpc('assessable_form_locations', { p_user: user.id })
+    if (pairErr) throw pairErr
+    const assignments = (pairRows ?? []) as { form_id: string; location_id: string }[]
+    const assignedFormIds = [...new Set(assignments.map((p) => p.form_id))]
+
+    // Versions behind the user's existing assessments must stay available even after
+    // the form is unassigned or the version is archived.
+    const { data: mine } = await admin
+      .from('assessments')
+      .select('form_version_id')
+      .eq('organisation_id', orgId)
+      .or(`created_by.eq.${user.id},assessors.cs.{${user.id}}`)
+      .is('deleted_at', null)
+    const referencedVersionIds = [...new Set((mine ?? []).map((a) => a.form_version_id as string))]
+
+    const FV_COLS = 'id, form_id, version, status, definition, updated_at'
+    const noRows = Promise.resolve({ data: [] as Record<string, unknown>[] })
+
+    const [asmntRes, assignedFvRes, referencedFvRes, helpRes, locationRes, memberRes] = await Promise.all([
       admin
         .from('assessments')
         .select('*')
@@ -154,12 +223,13 @@ Deno.serve(async (req) => {
         .gt('updated_at', since)
         .is('deleted_at', null),
 
-      admin
-        .from('form_versions')
-        .select('id, form_id, version, status, definition, updated_at, forms!inner(organisation_id)')
-        .eq('forms.organisation_id', orgId)
-        .eq('status', 'published')
-        .gt('updated_at', since),
+      assignedFormIds.length
+        ? admin.from('form_versions').select(FV_COLS).in('form_id', assignedFormIds).eq('status', 'published')
+        : noRows,
+
+      referencedVersionIds.length
+        ? admin.from('form_versions').select(FV_COLS).in('id', referencedVersionIds)
+        : noRows,
 
       admin
         .from('help_articles')
@@ -183,8 +253,25 @@ Deno.serve(async (req) => {
     ])
 
     const assessments = asmntRes.data ?? []
-    const formVersions = (fvRes.data ?? []).map(({ forms: _f, ...rest }) => rest)
     const locations = locationRes.data ?? []
+
+    // Send a version when the phone doesn't hold it yet (new assignment, new device) or it
+    // changed since the cursor (e.g. archived). Published definitions never change.
+    const knownVersions = new Set(known_form_version_ids)
+    const versionsById = new Map<string, Record<string, unknown>>()
+    for (const fv of [...(assignedFvRes.data ?? []), ...(referencedFvRes.data ?? [])]) {
+      versionsById.set(fv.id as string, fv)
+    }
+    const formVersions = [...versionsById.values()].filter(
+      (fv) => !knownVersions.has(fv.id as string) || new Date(fv.updated_at as string).getTime() > sinceMs,
+    )
+
+    // Titles for every form the phone can show: assigned ones and those behind its assessments.
+    const formIds = [...new Set([...assignedFormIds, ...[...versionsById.values()].map((fv) => fv.form_id as string)])]
+    const { data: formRows } = formIds.length
+      ? await admin.from('forms').select('id, organisation_id, key, title').in('id', formIds)
+      : { data: [] }
+    const forms = formRows ?? []
     const members = (memberRes.data ?? []).map((m) => ({
       id: m.user_id,
       full_name: (m.profiles as { full_name?: string })?.full_name ?? '',
@@ -224,6 +311,8 @@ Deno.serve(async (req) => {
         help_articles: helpRes.data ?? [],
         locations,
         members,
+        forms,
+        assignments,
       },
       cursor: now,
       pushed,

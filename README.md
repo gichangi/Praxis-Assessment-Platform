@@ -164,7 +164,7 @@ repo/
 │   ├── i18n/       Source translation catalogs (en / so / ar)
 │   └── api-types/  Generated Supabase TypeScript types
 ├── supabase/
-│   ├── migrations/ 0001 schema · 0002 RLS · 0003 functions · 0004 handle_new_user
+│   ├── migrations/ 0001 schema · 0002 RLS · 0003 functions · 0004 handle_new_user · 0005 locations · 0006 form assignments
 │   ├── functions/  sync · export · sheets-sync · publish-form · invite-user · support-report
 │   └── seed.sql
 └── tools/          excel_to_template.py · validate_template.py · json_to_arb.py
@@ -177,6 +177,8 @@ repo/
 ## 8 — Common dev workflows
 
 **Add a new form item** — edit the form in Admin → Forms → Builder, then publish. No code change needed.
+
+**Add a new form and assign it** — Admin → Forms → New form, build and publish it, then on the form's page use *Who can use this form* to pick a location (or all) and a person (or everyone with assessor access). Phones receive it on their next sync (every couple of minutes while the app is open); until a form is assigned, nobody can start it.
 
 **Add a UI string** — add the key to `packages/i18n/catalogs/en.json` (and `so.json`, `ar.json`), run `python tools/json_to_arb.py`, then use `tr('your_key')` in Dart or the admin portal's i18n helper.
 

@@ -44,7 +44,15 @@
     "note_hint": "Add a note for this item",
     "summary": "Summary",
     "missing_items": "Missing items",
-    "missing_items_desc": "Answer or mark as not assessed before submitting"
+    "missing_items_desc": "Answer or mark as not assessed before submitting",
+    "status_completed": "Completed",
+    "status_synced": "Synced",
+    "filter_completed": "Completed",
+    "filter_synced": "Synced",
+    "select_form": "Form",
+    "no_forms_assigned": "No forms assigned yet",
+    "no_forms_assigned_hint": "Forms assigned to you appear here after a sync. Connect to the internet, then tap Sync now.",
+    "waiting_to_sync": "Waiting to sync"
   },
   "sync": {
     "syncing": "Syncing…",

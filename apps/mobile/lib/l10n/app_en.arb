@@ -403,5 +403,21 @@
   "auth_server_invalid_url": "Enter a valid http:// or https:// URL",
   "@auth_server_invalid_url": { "description": "server URL validation error" },
   "auth_server_error": "Could not connect to server",
-  "@auth_server_error": { "description": "server reinit error" }
+  "@auth_server_error": { "description": "server reinit error" },
+  "assessments_status_completed": "Completed",
+  "@assessments_status_completed": { "description": "assessments status completed" },
+  "assessments_status_synced": "Synced",
+  "@assessments_status_synced": { "description": "assessments status synced" },
+  "assessments_filter_completed": "Completed",
+  "@assessments_filter_completed": { "description": "assessments filter completed" },
+  "assessments_filter_synced": "Synced",
+  "@assessments_filter_synced": { "description": "assessments filter synced" },
+  "assessments_select_form": "Form",
+  "@assessments_select_form": { "description": "assessments select form" },
+  "assessments_no_forms_assigned": "No forms assigned yet",
+  "@assessments_no_forms_assigned": { "description": "assessments no forms assigned" },
+  "assessments_no_forms_assigned_hint": "Forms assigned to you appear here after a sync. Connect to the internet, then tap Sync now.",
+  "@assessments_no_forms_assigned_hint": { "description": "assessments no forms assigned hint" },
+  "assessments_waiting_to_sync": "Waiting to sync",
+  "@assessments_waiting_to_sync": { "description": "assessments waiting to sync" }
 }

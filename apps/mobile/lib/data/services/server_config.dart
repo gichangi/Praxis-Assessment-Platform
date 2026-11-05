@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 const _kDefaultUrl = 'http://10.0.2.2:54321';
@@ -21,6 +23,28 @@ class ServerConfig {
   static Future<void> save({required String url, required String anonKey}) async {
     await _storage.write(key: _kUrlKey, value: url.replaceAll(RegExp(r'/+$'), ''));
     await _storage.write(key: _kAnonKeyKey, value: anonKey);
+  }
+
+  /// GETs {url}/auth/v1/health to verify the server is reachable.
+  /// Throws an [Exception] with a human-readable message on failure.
+  static Future<void> testConnection(String url) async {
+    final uri = Uri.parse('$url/auth/v1/health');
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 8);
+    try {
+      final request = await client.getUrl(uri);
+      final response = await request.close();
+      await response.drain<void>();
+      if (response.statusCode != 200) {
+        throw Exception('Server returned HTTP ${response.statusCode}');
+      }
+    } on SocketException catch (e) {
+      throw Exception('Cannot reach server: ${e.message}');
+    } on HttpException catch (e) {
+      throw Exception('Connection error: ${e.message}');
+    } finally {
+      client.close();
+    }
   }
 
   static String get defaultUrl => _kDefaultUrl;

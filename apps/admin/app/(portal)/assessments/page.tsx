@@ -22,11 +22,6 @@ export default async function AssessmentsPage({
   const page = Number.isFinite(parsedPage) ? Math.max(1, parsedPage) : 1;
   const pageSize = 25;
 
-  const [locationsRes] = await Promise.all([
-    sb.from("locations").select("id, parent_id, code, name, level").order("level").order("code"),
-  ]);
-  const locations = locationsRes.data ?? [];
-
   let query = sb
     .from("assessments")
     .select(
@@ -48,7 +43,7 @@ export default async function AssessmentsPage({
         eyebrow="YOUR EVIDENCE, ORGANISED"
         description="Follow each assessment from first draft to final approval."
       >
-        <NewAssessmentButton locations={locations} />
+        <NewAssessmentButton />
       </PageHeader>
       <nav className="status-tabs w-fit max-w-full" aria-label="Filter assessments by status">
         {["", ...STATUSES].map((value) => (

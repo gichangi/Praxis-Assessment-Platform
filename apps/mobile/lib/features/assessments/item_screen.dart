@@ -54,7 +54,10 @@ class _ItemScreenState extends ConsumerState<ItemScreen> {
 
   Future<void> _load() async {
     final repo = ref.read(assessmentRepoProvider);
-    final fvRow = await repo.getLatestFormVersion();
+    final assessment = await repo.getAssessment(widget.assessmentId);
+    if (assessment == null) return;
+    // The version this assessment was started on, never "the newest form on the phone".
+    final fvRow = await repo.getFormVersion(assessment.formVersionId);
     if (fvRow == null) return;
 
     final def = FormDefinition.fromJsonString(fvRow.definitionJson);

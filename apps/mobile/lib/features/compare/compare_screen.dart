@@ -31,30 +31,59 @@ class CompareScreen extends ConsumerStatefulWidget {
 class _CompareScreenState extends ConsumerState<CompareScreen> {
   final Set<String> _selected = {};
   FormDefinition? _def;
+  String? _defVersionId;
+  Map<String, String> _formIdByVersion = {};
+  AssessmentLookups? _lookups;
 
   String get _lang => Localizations.localeOf(context).languageCode;
 
   @override
   void initState() {
     super.initState();
-    _loadDef();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadLookups());
   }
 
-  Future<void> _loadDef() async {
-    final fv = await ref.read(assessmentRepoProvider).getLatestFormVersion();
-    if (fv != null && mounted) {
+  Future<void> _loadLookups() async {
+    final repo = ref.read(assessmentRepoProvider);
+    final formIds = await repo.formIdByVersionId();
+    final lookups = await repo.loadLookups(_lang);
+    if (!mounted) return;
+    setState(() {
+      _formIdByVersion = formIds;
+      _lookups = lookups;
+    });
+  }
+
+  Future<void> _loadDef(String? versionId) async {
+    if (versionId == _defVersionId) return;
+    _defVersionId = versionId;
+    if (versionId == null) {
+      if (mounted) setState(() => _def = null);
+      return;
+    }
+    final fv = await ref.read(assessmentRepoProvider).getFormVersion(versionId);
+    if (fv != null && mounted && _defVersionId == versionId) {
       setState(() => _def = FormDefinition.fromJsonString(fv.definitionJson));
     }
   }
 
-  void _toggle(String id) {
+  /// Assessments can only be compared when they belong to the same form (same sections).
+  bool _comparable(LocalAssessment a, List<LocalAssessment> approved) {
+    final first = approved.where((x) => _selected.contains(x.id)).firstOrNull;
+    if (first == null) return true;
+    return _formIdByVersion[a.formVersionId] == _formIdByVersion[first.formVersionId];
+  }
+
+  void _toggle(LocalAssessment a, List<LocalAssessment> approved) {
     setState(() {
-      if (_selected.contains(id)) {
-        _selected.remove(id);
-      } else if (_selected.length < _maxCompare) {
-        _selected.add(id);
+      if (_selected.contains(a.id)) {
+        _selected.remove(a.id);
+      } else if (_selected.length < _maxCompare && _comparable(a, approved)) {
+        _selected.add(a.id);
       }
     });
+    final first = approved.where((x) => _selected.contains(x.id)).firstOrNull;
+    _loadDef(first?.formVersionId);
   }
 
   @override
@@ -116,8 +145,11 @@ class _CompareScreenState extends ConsumerState<CompareScreen> {
                   final active = idx >= 0;
                   final color = active ? _compareColors[idx % _compareColors.length] : null;
                   final totals = _totalsFrom(a);
+                  final comparable = _comparable(a, approved);
 
-                  return Card(
+                  return Opacity(
+                    opacity: comparable ? 1 : 0.4,
+                    child: Card(
                     margin: const EdgeInsets.only(bottom: 8),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppTheme.cardRadius),
@@ -127,7 +159,7 @@ class _CompareScreenState extends ConsumerState<CompareScreen> {
                     ),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                      onTap: () => _toggle(a.id),
+                      onTap: () => _toggle(a, approved),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12),
@@ -154,7 +186,10 @@ class _CompareScreenState extends ConsumerState<CompareScreen> {
                                     style: Theme.of(context).textTheme.titleSmall,
                                   ),
                                   Text(
-                                    a.locationId,
+                                    [
+                                      _lookups?.locationNameById[a.locationId] ?? '',
+                                      _lookups?.formTitleByVersionId[a.formVersionId] ?? '',
+                                    ].where((s) => s.isNotEmpty).join(' · '),
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall
@@ -174,6 +209,7 @@ class _CompareScreenState extends ConsumerState<CompareScreen> {
                           ],
                         ),
                       ),
+                    ),
                     ),
                   );
                 }),

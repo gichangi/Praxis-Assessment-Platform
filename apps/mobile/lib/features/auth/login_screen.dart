@@ -37,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _urlCtrl = TextEditingController();
   final _anonKeyCtrl = TextEditingController();
   bool _serverLoading = false;
+  bool _serverConnected = false;
   String? _serverError;
 
   @override
@@ -115,17 +116,25 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _applyServer() async {
     final url = _urlCtrl.text.trim();
     if (url.isEmpty || (!url.startsWith('http://') && !url.startsWith('https://'))) {
-      setState(() => _serverError = tr('auth_server_invalid_url'));
+      setState(() { _serverError = tr('auth_server_invalid_url'); _serverConnected = false; });
       return;
     }
-    setState(() { _serverLoading = true; _serverError = null; });
+    setState(() { _serverLoading = true; _serverError = null; _serverConnected = false; });
     try {
+      await ServerConfig.testConnection(url);
       await ServerConfig.save(url: url, anonKey: _anonKeyCtrl.text.trim());
+      if (mounted) setState(() { _serverConnected = true; _serverLoading = false; });
       await reinitSupabase();
-      // reinitSupabase() increments appRestartSignal which rebuilds ProviderScope;
-      // the LoginScreen is recreated and _loadServerConfig() will reflect the new URL.
+      // reinitSupabase() increments appRestartSignal, rebuilding ProviderScope;
+      // LoginScreen is recreated and _loadServerConfig() will reflect the new URL.
     } catch (e) {
-      if (mounted) setState(() { _serverError = tr('auth_server_error'); _serverLoading = false; });
+      if (mounted) {
+        setState(() {
+          _serverError = e.toString().replaceFirst('Exception: ', '');
+          _serverLoading = false;
+          _serverConnected = false;
+        });
+      }
     }
   }
 
@@ -219,6 +228,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.url,
                     textInputAction: TextInputAction.done,
                     autocorrect: false,
+                    onChanged: (_) {
+                      if (_serverConnected || _serverError != null) {
+                        setState(() { _serverConnected = false; _serverError = null; });
+                      }
+                    },
                     onFieldSubmitted: (_) => _applyServer(),
                     decoration: _inputDecoration(tr('auth_server_url_hint')).copyWith(
                       suffixIcon: _serverLoading
@@ -230,11 +244,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               ),
                             )
-                          : IconButton(
-                              icon: const Icon(Icons.check_circle_outline, size: 20),
-                              tooltip: tr('auth_server_connect'),
-                              onPressed: _applyServer,
-                            ),
+                          : _serverConnected
+                              ? const Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: Icon(Icons.check_circle, size: 20, color: Colors.green),
+                                )
+                              : IconButton(
+                                  icon: const Icon(Icons.check_circle_outline, size: 20),
+                                  tooltip: tr('auth_server_connect'),
+                                  onPressed: _applyServer,
+                                ),
                     ),
                   ),
                   if (_serverError != null) ...[

@@ -5,6 +5,7 @@
 | **Assessment** | A completed or in-progress scoring of one district against a published form version. Created on the phone; synced to the server. Phone-generated UUID so offline drafts never clash. |
 | **District** | The geographic unit being assessed. Belongs to a state. Codes are unique within a state. |
 | **Form** | The template that defines what questions are asked. One form can have many versions. |
+| **Form assignment** | A rule saying a form may be assessed at a location (or everywhere) by a person (or every assessor). A location covers everything beneath it, and a person only ever gets the places their own membership covers. The server expands the rules into the concrete form/location pairs each phone is given on sync; new assessments outside them are refused. |
 | **Form version** | A specific snapshot of a form definition (sections, items, scales, scoring). Drafts are editable; published versions are frozen by a database trigger. Phones keep every version they have active drafts against. |
 | **FormDefinition** | The JSON document inside `form_versions.definition`. Validated by `packages/core`; parsed by the Flutter app at runtime. No question text lives in code. |
 | **Garowe fixture** | The canonical parity test: 37 items at value 3, one at value 5, one not assessed → **116 / 228**. Must hold in TypeScript (`computeTotals`), Dart (`computeTotals`), and SQL (`compute_totals`). |

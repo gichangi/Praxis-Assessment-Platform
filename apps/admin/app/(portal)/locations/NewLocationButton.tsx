@@ -18,6 +18,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
+import { myMembership } from "@/lib/org";
 import { Plus } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { t } from "@/lib/utils";
@@ -44,10 +45,18 @@ export function NewLocationButton({ locations }: { locations: LocationRow[] }) {
     if (!name.trim() || !code.trim()) return;
     setLoading(true);
 
+    const membership = await myMembership(sb, ["super_admin"]);
+    if (!membership) {
+      toast({ title: "Only a super admin can add locations", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
     const parent = parentId !== NO_PARENT ? locations.find((l) => l.id === parentId) : null;
     const level = parent ? parent.level + 1 : 0;
 
     const { error } = await sb.from("locations").insert({
+      organisation_id: membership.organisation_id,
       parent_id: parent?.id ?? null,
       code: code.trim(),
       name: { en: name.trim() },

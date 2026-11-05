@@ -38,7 +38,15 @@
     "score": "Dhibcaha",
     "summary": "Koobid",
     "guidance": "Hagitaan",
-    "note": "Faallo"
+    "note": "Faallo",
+    "status_completed": "La dhammeystiray",
+    "status_synced": "La waafajiyey",
+    "filter_completed": "La dhammeystiray",
+    "filter_synced": "La waafajiyey",
+    "select_form": "Foomka",
+    "no_forms_assigned": "Weli foom laguu xilsaarin",
+    "no_forms_assigned_hint": "Foomamka laguu xilsaaro halkan ayay ka soo muuqan doonaan marka la waafajiyo. Ku xidhma internetka, kadibna taabo Is-waafaji hadda.",
+    "waiting_to_sync": "Sugaya in la waafajiyo"
   },
   "settings": {
     "title": "Dejinta",

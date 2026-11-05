@@ -289,5 +289,21 @@
   "auth_server_invalid_url": "أدخل عنوان URL صالحاً يبدأ بـ http:// أو https://",
   "@auth_server_invalid_url": { "description": "server URL validation error" },
   "auth_server_error": "تعذّر الاتصال بالخادم",
-  "@auth_server_error": { "description": "server reinit error" }
+  "@auth_server_error": { "description": "server reinit error" },
+  "assessments_status_completed": "مكتمل",
+  "@assessments_status_completed": { "description": "assessments status completed" },
+  "assessments_status_synced": "تمت المزامنة",
+  "@assessments_status_synced": { "description": "assessments status synced" },
+  "assessments_filter_completed": "المكتملة",
+  "@assessments_filter_completed": { "description": "assessments filter completed" },
+  "assessments_filter_synced": "المُزامَنة",
+  "@assessments_filter_synced": { "description": "assessments filter synced" },
+  "assessments_select_form": "النموذج",
+  "@assessments_select_form": { "description": "assessments select form" },
+  "assessments_no_forms_assigned": "لا توجد نماذج مُسندة إليك بعد",
+  "@assessments_no_forms_assigned": { "description": "assessments no forms assigned" },
+  "assessments_no_forms_assigned_hint": "تظهر النماذج المُسندة إليك هنا بعد المزامنة. اتصل بالإنترنت ثم اضغط مزامنة الآن.",
+  "@assessments_no_forms_assigned_hint": { "description": "assessments no forms assigned hint" },
+  "assessments_waiting_to_sync": "في انتظار المزامنة",
+  "@assessments_waiting_to_sync": { "description": "assessments waiting to sync" }
 }
