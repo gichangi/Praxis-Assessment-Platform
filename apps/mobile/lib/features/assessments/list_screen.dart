@@ -12,6 +12,8 @@ import '../../data/repositories/assessment_repository.dart';
 import '../../data/database/app_database.dart';
 import '../../data/sync/sync_engine.dart';
 import '../../domain/assessment_stage.dart';
+import '../../domain/review_decision.dart';
+import 'review_decision_card.dart';
 
 enum _StatusFilter { all, draft, completed, synced, returned }
 
@@ -373,6 +375,13 @@ class _AssessmentCard extends StatelessWidget {
     final stage = entry.stage;
     final statusInfo = _stageInfo(stage);
     final totals = _parseTotals(assessment.totalsJson);
+    final decision = reviewDecisionOf(
+      status: assessment.status,
+      reviewedBy: assessment.reviewedBy,
+      reviewedAt: assessment.reviewedAt,
+      note: assessment.reviewNote,
+      memberNames: lookups?.memberNameById ?? const {},
+    );
 
     final formTitle = lookups?.formTitleByVersionId[assessment.formVersionId] ?? '';
     final locationName = lookups?.locationNameById[assessment.locationId] ?? '';
@@ -380,9 +389,11 @@ class _AssessmentCard extends StatelessWidget {
     final heading = formTitle.isNotEmpty
         ? formTitle
         : (locationName.isNotEmpty ? locationName : assessment.assessedOn);
+    final versionLabel = lookups?.versionLabelByVersionId[assessment.formVersionId];
     final subtitle = [
       if (formTitle.isNotEmpty && locationName.isNotEmpty) locationName,
       assessment.assessedOn,
+      if (versionLabel != null) 'v$versionLabel',
     ].join(' · ');
 
     return Card(
@@ -417,23 +428,10 @@ class _AssessmentCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppTheme.muted),
               ),
 
-              // Returned note
-              if (stage == AssessmentStage.returned &&
-                  assessment.reviewNote != null &&
-                  assessment.reviewNote!.isNotEmpty) ...[
+              // Who approved, returned or rejected it, and their message
+              if (decision != null) ...[
                 const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsetsDirectional.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.logistics.withAlpha(20),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '✎ ${tr('assessments_returned')}: ${assessment.reviewNote}',
-                    style: TextStyle(fontSize: 12, color: AppTheme.logistics),
-                  ),
-                ),
+                ReviewDecisionCard(decision: decision, compact: true),
               ],
 
               // Progress bar
@@ -524,6 +522,11 @@ class _AssessmentCard extends StatelessWidget {
             tr('assessments_status_approved'),
             AppTheme.good,
             AppTheme.goodTint,
+          ),
+        AssessmentStage.rejected => (
+            tr('assessments_status_rejected'),
+            const Color(0xFFB3261E),
+            const Color(0xFFF9DEDC),
           ),
         AssessmentStage.draft => (
             tr('assessments_status_draft'),

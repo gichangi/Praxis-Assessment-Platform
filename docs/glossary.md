@@ -23,4 +23,4 @@
 | **State** | A regional unit above the district (e.g. Jubbaland, Puntland). |
 | **Sync** | The bidirectional data exchange between the Flutter app and the `sync` edge function. Push first, then pull. Idempotent; newer `updated_at` wins on conflict. |
 | **Totals** | The computed score object: `{score, max, pct, sections: {…}}`. Calculated by `compute_totals()` (SQL) on submit; never trusted from the client. The Flutter app computes a local preview using `computeTotals()` (Dart). |
-| **Version status** | `draft` → `published` → `archived`. Only drafts are editable. Archived versions cannot be reactivated. |
+| **Version status** | `draft` → `published` → `archived`. Shown in the admin portal as Draft → **Active** → **Superseded**. Only drafts are editable. A form has at most one draft and exactly one active version: publishing a version supersedes the previous one automatically, and a superseded version cannot be reactivated. Assessments stay tagged to the version they were started on, so older data can still be viewed and submitted; new assessments use the active version once a phone has synced it. |

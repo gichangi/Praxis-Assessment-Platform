@@ -14,6 +14,9 @@ enum AssessmentStage {
 
   /// Accepted by a reviewer.
   approved,
+
+  /// Turned down by a reviewer. Final: it cannot be edited or submitted again.
+  rejected,
 }
 
 /// [status] is the assessment's workflow status; [hasPendingChanges] is true while the
@@ -22,6 +25,7 @@ AssessmentStage assessmentStage({required String status, required bool hasPendin
   return switch (status) {
     'approved' => AssessmentStage.approved,
     'returned' => AssessmentStage.returned,
+    'rejected' => AssessmentStage.rejected,
     'submitted' => hasPendingChanges ? AssessmentStage.completed : AssessmentStage.synced,
     _ => AssessmentStage.draft,
   };

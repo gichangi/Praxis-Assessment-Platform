@@ -108,6 +108,39 @@
   "@assessments_status_returned": {
     "description": "assessments status returned"
   },
+  "assessments_status_rejected": "مرفوض",
+  "@assessments_status_rejected": {
+    "description": "assessments status rejected"
+  },
+  "assessments_decision_approved_by": "تمت الموافقة بواسطة {name}",
+  "@assessments_decision_approved_by": {
+    "description": "assessments decision approved by",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "assessments_decision_returned_by": "أُعيد بواسطة {name}",
+  "@assessments_decision_returned_by": {
+    "description": "assessments decision returned by",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "assessments_decision_rejected_by": "رُفض بواسطة {name}",
+  "@assessments_decision_rejected_by": {
+    "description": "assessments decision rejected by",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "assessments_decision_message": "الرسالة",
+  "@assessments_decision_message": {
+    "description": "assessments decision message"
+  },
+  "assessments_decision_no_message": "لم تُترك أي رسالة.",
+  "@assessments_decision_no_message": {
+    "description": "assessments decision no message"
+  },
   "assessments_status_approved": "مُعتمَد",
   "@assessments_status_approved": {
     "description": "assessments status approved"

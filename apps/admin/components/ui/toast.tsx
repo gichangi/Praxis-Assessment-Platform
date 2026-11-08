@@ -24,7 +24,7 @@ ToastViewport.displayName = ToastPrimitive.Viewport.displayName;
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Root> & {
-    variant?: "default" | "destructive";
+    variant?: "default" | "destructive" | "success";
   }
 >(({ className, variant = "default", ...props }, ref) => (
   <ToastPrimitive.Root
@@ -32,6 +32,7 @@ const Toast = React.forwardRef<
     className={cn(
       "flex items-start gap-3 rounded-card border border-border bg-surface p-4 shadow-lg",
       variant === "destructive" && "border-red-200 bg-red-50",
+      variant === "success" && "border-emerald-200 bg-emerald-50",
       className
     )}
     {...props}
@@ -77,7 +78,11 @@ ToastClose.displayName = ToastPrimitive.Close.displayName;
 export { ToastProvider, ToastViewport, Toast, ToastTitle, ToastDescription, ToastClose };
 
 // Simple imperative toast hook
-type ToastOptions = { title: string; description?: string; variant?: "default" | "destructive" };
+type ToastOptions = {
+  title: string;
+  description?: string;
+  variant?: "default" | "destructive" | "success";
+};
 const listeners: Array<(opts: ToastOptions) => void> = [];
 
 export function toast(opts: ToastOptions) {

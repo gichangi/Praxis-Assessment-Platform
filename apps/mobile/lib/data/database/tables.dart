@@ -43,11 +43,14 @@ class LocalAssessments extends Table {
   TextColumn get locationId => text()();
   TextColumn get language => text().withDefault(const Constant('en'))();
   TextColumn get status =>
-      text().withDefault(const Constant('draft'))(); // draft|submitted|returned|approved
+      text().withDefault(const Constant('draft'))(); // draft|submitted|returned|approved|rejected
   TextColumn get createdBy => text()();
   TextColumn get assessedOn => text()(); // ISO date string YYYY-MM-DD
   TextColumn get assessorsJson => text().nullable()(); // JSON array of co-assessor user IDs
   TextColumn get reviewNote => text().nullable()();
+  /// Who approved, returned or rejected it, and when. Set by the server.
+  TextColumn get reviewedBy => text().nullable()();
+  DateTimeColumn get reviewedAt => dateTime().nullable()();
   TextColumn get totalsJson => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();

@@ -6,12 +6,12 @@
  * Reply { form_version: FormVersionRow }
  *
  * Validates the definition structure, computes a SHA-256 checksum, then calls
- * the publish_form_version() SQL function which freezes the definition and
- * records published_by / published_at.
+ * the publish_form_version() SQL function which freezes the definition, records
+ * published_by / published_at and supersedes the form's previously active version.
  */
 
 import { options, json, err } from '../_shared/cors.ts'
-import { adminClient, requireUser } from '../_shared/supabase.ts'
+import { adminClient, userClient, requireUser } from '../_shared/supabase.ts'
 
 /** SHA-256 hex of a string. */
 async function sha256(text: string): Promise<string> {
@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return options()
 
   try {
-    const { user } = await requireUser(req)
+    const { user, token } = await requireUser(req)
     const admin = adminClient()
 
     const { version_id, change_note = '' } = await req.json() as {
@@ -130,8 +130,10 @@ Deno.serve(async (req) => {
     const canonical = JSON.stringify(fv.definition, Object.keys(fv.definition as object).sort())
     const checksum = await sha256(canonical)
 
-    // Call the SQL workflow function (sets status, published_by, published_at).
-    const { data: result, error: pubErr } = await admin.rpc('publish_form_version', {
+    // Call the SQL workflow function (supersedes the previous active version, sets status,
+    // published_by, published_at). It checks auth.uid(), so it must run as the caller;
+    // the service role has no uid and would always be refused.
+    const { data: result, error: pubErr } = await userClient(token).rpc('publish_form_version', {
       p_version_id: version_id,
       p_checksum: checksum,
       p_note: change_note,

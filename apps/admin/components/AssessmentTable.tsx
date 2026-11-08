@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/EmptyState";
+import { statusVariant } from "@/lib/assessment-status";
 import { fmtDate } from "@/lib/utils";
 
 export type AssessmentTableRow = {
@@ -18,15 +19,9 @@ export type AssessmentTableRow = {
   score: number | null;
   max: number | null;
   pct: number | null;
+  form?: string;
   version?: string;
 };
-
-const statusVariants = {
-  draft: "outline",
-  submitted: "warning",
-  approved: "success",
-  returned: "destructive",
-} as const;
 
 export function AssessmentTable({
   rows,
@@ -41,7 +36,9 @@ export function AssessmentTable({
 }) {
   const [search, setSearch] = useState("");
   const filtered = rows.filter((row) =>
-    `${row.location} ${row.assessor} ${row.status}`.toLowerCase().includes(search.toLowerCase())
+    `${row.location} ${row.assessor} ${row.status} ${row.form ?? ""}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface shadow-[0_2px_8px_0_#73523908]">
@@ -95,6 +92,7 @@ export function AssessmentTable({
             </caption>
             <thead>
               <tr>
+                {!recent && <th scope="col">Form</th>}
                 <th scope="col">Location</th>
                 <th scope="col">Assessor</th>
                 {!recent && <th scope="col">Version</th>}
@@ -109,17 +107,12 @@ export function AssessmentTable({
             <tbody>
               {filtered.map((row) => (
                 <tr key={row.id}>
+                  {!recent && <td className="text-sm font-medium">{row.form || "—"}</td>}
                   <td>
                     <Link
                       href={`/assessments/${row.id}`}
-                      className="flex items-center gap-3 font-medium hover:text-primary"
+                      className="font-medium hover:text-primary"
                     >
-                      <span
-                        aria-hidden="true"
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-bg text-[10px] font-semibold text-muted"
-                      >
-                        {row.location.slice(0, 2).toUpperCase()}
-                      </span>
                       {row.location || "Unnamed location"}
                     </Link>
                   </td>
@@ -129,11 +122,7 @@ export function AssessmentTable({
                   )}
                   <td className="whitespace-nowrap text-xs text-muted">{fmtDate(row.date)}</td>
                   <td>
-                    <Badge
-                      variant={
-                        statusVariants[row.status as keyof typeof statusVariants] ?? "outline"
-                      }
-                    >
+                    <Badge variant={statusVariant(row.status)}>
                       <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
                       {row.status}
                     </Badge>
@@ -198,7 +187,7 @@ export function AssessmentTable({
             hasError
               ? "Refresh this page to try again. If the issue continues, contact your workspace administrator."
               : search
-                ? "Try a different location, assessor, or status."
+                ? "Try a different location, assessor, form, or status."
                 : "Once your team syncs an assessment from the mobile app, you can follow its progress and review it here."
           }
         />

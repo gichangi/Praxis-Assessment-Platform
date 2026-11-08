@@ -89,6 +89,15 @@ class AssessmentsDao extends DatabaseAccessor<AppDatabase> with _$AssessmentsDao
     return [for (final r in await q.get()) r.read(localFormVersions.id)!];
   }
 
+  Future<Map<String, String>> versionLabelById() async {
+    final q = selectOnly(localFormVersions)
+      ..addColumns([localFormVersions.id, localFormVersions.version]);
+    return {
+      for (final r in await q.get())
+        r.read(localFormVersions.id)!: r.read(localFormVersions.version)!,
+    };
+  }
+
   Future<Map<String, String>> formIdByVersionId() async {
     final q = selectOnly(localFormVersions)
       ..addColumns([localFormVersions.id, localFormVersions.formId]);

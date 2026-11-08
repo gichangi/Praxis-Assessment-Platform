@@ -63,6 +63,33 @@ void main() {
       expect(forms.single.version.id, 'v_new');
     });
 
+    test('after a new version is published and synced, new assessments use it', () async {
+      // What a phone holds once it has synced: the old version marked superseded, the new one active.
+      await addForm('f');
+      await addVersion('v1', 'f', '1.0.0', status: 'archived');
+      await addVersion('v2', 'f', '1.1.0');
+      await assign([('f', 'loc1')]);
+
+      expect((await repo.getAssignedForms()).single.version.id, 'v2');
+    });
+
+    test('before the new version has synced, the phone keeps using the one it has', () async {
+      await addForm('f');
+      await addVersion('v1', 'f', '1.0.0');
+      await assign([('f', 'loc1')]);
+
+      expect((await repo.getAssignedForms()).single.version.id, 'v1');
+    });
+
+    test('a superseded version stays available for assessments already started on it', () async {
+      await addForm('f');
+      await addVersion('v1', 'f', '1.0.0', status: 'archived');
+      await addVersion('v2', 'f', '1.1.0');
+
+      expect((await repo.getFormVersion('v1'))?.version, '1.0.0');
+      expect((await repo.loadLookups('en')).versionLabelByVersionId, {'v1': '1.0.0', 'v2': '1.1.0'});
+    });
+
     test('carries every location the form is assigned to', () async {
       await addForm('f');
       await addVersion('v', 'f', '1.0.0');

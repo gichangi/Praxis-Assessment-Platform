@@ -23,10 +23,21 @@ class AssignedForm {
 
 /// Names for the ids shown on assessment cards.
 class AssessmentLookups {
-  const AssessmentLookups({required this.formTitleByVersionId, required this.locationNameById});
+  const AssessmentLookups({
+    required this.formTitleByVersionId,
+    required this.locationNameById,
+    this.versionLabelByVersionId = const {},
+    this.memberNameById = const {},
+  });
 
   final Map<String, String> formTitleByVersionId;
   final Map<String, String> locationNameById;
+
+  /// "1.2.0" for each form version on the phone, so an assessment shows which one it uses.
+  final Map<String, String> versionLabelByVersionId;
+
+  /// Names of the people in the organisation, to say who reviewed an assessment.
+  final Map<String, String> memberNameById;
 }
 
 String _newUuid() {
@@ -170,6 +181,8 @@ class AssessmentRepository {
         for (final l in await _dao.allLocations())
           l.id: tJson(l.nameJson, lang, 'en').ifEmpty(l.code),
       },
+      versionLabelByVersionId: await _dao.versionLabelById(),
+      memberNameById: {for (final m in await _dao.allMembers()) m.id: m.fullName},
     );
   }
 

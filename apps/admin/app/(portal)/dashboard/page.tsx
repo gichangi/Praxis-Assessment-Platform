@@ -10,13 +10,9 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
-import { AssessmentTable } from "@/components/AssessmentTable";
-import { assessmentRows } from "@/lib/assessment-rows";
 import { t } from "@/lib/utils";
 import { DashboardCharts } from "./DashboardCharts";
-import { NewFormButton } from "../forms/NewFormButton";
 
 export const dynamic = "force-dynamic";
 
@@ -46,9 +42,9 @@ export default async function DashboardPage() {
     submitted,
     approved,
     returned,
+    rejected,
     total,
     locationCount,
-    recent,
     activity,
     locationScores,
   ] = await Promise.all([
@@ -72,14 +68,13 @@ export default async function DashboardPage() {
       .select("*", { count: "exact", head: true })
       .is("deleted_at", null)
       .eq("status", "returned"),
-    sb.from("assessments").select("*", { count: "exact", head: true }).is("deleted_at", null),
-    sb.from("locations").select("*", { count: "exact", head: true }).eq("active", true),
     sb
       .from("assessments")
-      .select("id, status, assessed_on, totals, locations(name), profiles!created_by(full_name)")
+      .select("*", { count: "exact", head: true })
       .is("deleted_at", null)
-      .order("updated_at", { ascending: false })
-      .limit(5),
+      .eq("status", "rejected"),
+    sb.from("assessments").select("*", { count: "exact", head: true }).is("deleted_at", null),
+    sb.from("locations").select("*", { count: "exact", head: true }).eq("active", true),
     Promise.all(
       months.map(({ start, end }) =>
         sb
@@ -104,13 +99,13 @@ export default async function DashboardPage() {
     submitted,
     approved,
     returned,
+    rejected,
     total,
     locationCount,
-    recent,
     ...activity,
     locationScores,
   ].some((result) => result.error);
-  const pipelineError = [drafts, submitted, approved, returned, total].some(
+  const pipelineError = [drafts, submitted, approved, returned, rejected, total].some(
     (result) => result.error
   );
   const stats = [
@@ -151,7 +146,8 @@ export default async function DashboardPage() {
     { label: "Draft", count: drafts.count ?? 0, color: "bg-slate-400", status: "draft" },
     { label: "Submitted", count: submitted.count ?? 0, color: "bg-amber-400", status: "submitted" },
     { label: "Approved", count: approved.count ?? 0, color: "bg-primary", status: "approved" },
-    { label: "Returned", count: returned.count ?? 0, color: "bg-rose-400", status: "returned" },
+    { label: "Returned", count: returned.count ?? 0, color: "bg-orange-400", status: "returned" },
+    { label: "Rejected", count: rejected.count ?? 0, color: "bg-rose-500", status: "rejected" },
   ];
   const seen = new Set<string>();
   const scores = (locationScores.data ?? [])
@@ -173,15 +169,7 @@ export default async function DashboardPage() {
         title="Workspace overview"
         eyebrow="THE BIG PICTURE"
         description="A clearer view of your assessments, your evidence, and what comes next."
-      >
-        <Button asChild variant="outline">
-          <Link href="/compare">
-            <ArrowUpRight className="h-4 w-4" />
-            Compare results
-          </Link>
-        </Button>
-        <NewFormButton />
-      </PageHeader>
+      />
       {hasError && (
         <div
           role="alert"
@@ -277,7 +265,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      <AssessmentTable rows={assessmentRows(recent.data ?? [])} recent hasError={!!recent.error} />
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-[11px] text-muted">
         <span>Praxis · Insight into action.</span>
         <Link href="/help" className="flex items-center gap-1.5 hover:text-primary">

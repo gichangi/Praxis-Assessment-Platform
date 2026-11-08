@@ -44,18 +44,25 @@ isOneToOne: false
                   ]
                 },"assessments": {
                   Row: {
-                    "assessed_on": string,"assessors": (string)[],"created_at": string,"created_by": string,"deleted_at": string | null,"device_id": string | null,"form_version_id": string,"id": string,"language": string,"location_id": string,"organisation_id": string,"review_note": string | null,"status": Database["public"]['Enums']["assessment_status"],"submitted_at": string | null,"totals": Json | null,"updated_at": string
+                    "assessed_on": string,"assessors": (string)[],"created_at": string,"created_by": string,"deleted_at": string | null,"device_id": string | null,"form_version_id": string,"id": string,"language": string,"location_id": string,"organisation_id": string,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"status": Database["public"]['Enums']["assessment_status"],"submitted_at": string | null,"totals": Json | null,"updated_at": string
                   }
                   Insert: {
-                    "assessed_on"?: string,"assessors"?: (string)[],"created_at"?: string,"created_by": string,"deleted_at"?: string | null,"device_id"?: string | null,"form_version_id": string,"id": string,"language"?: string,"location_id": string,"organisation_id": string,"review_note"?: string | null,"status"?: Database["public"]['Enums']["assessment_status"],"submitted_at"?: string | null,"totals"?: Json | null,"updated_at"?: string
+                    "assessed_on"?: string,"assessors"?: (string)[],"created_at"?: string,"created_by": string,"deleted_at"?: string | null,"device_id"?: string | null,"form_version_id": string,"id": string,"language"?: string,"location_id": string,"organisation_id": string,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["assessment_status"],"submitted_at"?: string | null,"totals"?: Json | null,"updated_at"?: string
                   }
                   Update: {
-                    "assessed_on"?: string,"assessors"?: (string)[],"created_at"?: string,"created_by"?: string,"deleted_at"?: string | null,"device_id"?: string | null,"form_version_id"?: string,"id"?: string,"language"?: string,"location_id"?: string,"organisation_id"?: string,"review_note"?: string | null,"status"?: Database["public"]['Enums']["assessment_status"],"submitted_at"?: string | null,"totals"?: Json | null,"updated_at"?: string
+                    "assessed_on"?: string,"assessors"?: (string)[],"created_at"?: string,"created_by"?: string,"deleted_at"?: string | null,"device_id"?: string | null,"form_version_id"?: string,"id"?: string,"language"?: string,"location_id"?: string,"organisation_id"?: string,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["assessment_status"],"submitted_at"?: string | null,"totals"?: Json | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
       foreignKeyName: "assessments_created_by_fkey"
       columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },
+    {
+      foreignKeyName: "assessments_reviewed_by_fkey"
+      columns: ["reviewed_by"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
@@ -212,13 +219,13 @@ isOneToOne: false
                   ]
                 },"forms": {
                   Row: {
-                    "created_at": string,"id": string,"key": string,"organisation_id": string,"title": NonNullable<Json>
+                    "active": boolean,"created_at": string,"id": string,"key": string,"organisation_id": string,"title": NonNullable<Json>
                   }
                   Insert: {
-                    "created_at"?: string,"id"?: string,"key": string,"organisation_id": string,"title": NonNullable<Json>
+                    "active"?: boolean,"created_at"?: string,"id"?: string,"key"?: string,"organisation_id": string,"title": NonNullable<Json>
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"key"?: string,"organisation_id"?: string,"title"?: NonNullable<Json>
+                    "active"?: boolean,"created_at"?: string,"id"?: string,"key"?: string,"organisation_id"?: string,"title"?: NonNullable<Json>
                   }
                   Relationships: [
                     {
@@ -306,26 +313,26 @@ isOneToOne: false
                   ]
                 },"organisations": {
                   Row: {
-                    "created_at": string,"id": string,"name": string
+                    "created_at": string,"form_seq": number,"id": string,"name": string
                   }
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string
+                    "created_at"?: string,"form_seq"?: number,"id"?: string,"name": string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"name"?: string
+                    "created_at"?: string,"form_seq"?: number,"id"?: string,"name"?: string
                   }
                   Relationships: [
                     
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"full_name": string,"id": string,"preferred_language": string
+                    "active": boolean,"created_at": string,"full_name": string,"id": string,"preferred_language": string
                   }
                   Insert: {
-                    "created_at"?: string,"full_name"?: string,"id": string,"preferred_language"?: string
+                    "active"?: boolean,"created_at"?: string,"full_name"?: string,"id": string,"preferred_language"?: string
                   }
                   Update: {
-                    "created_at"?: string,"full_name"?: string,"id"?: string,"preferred_language"?: string
+                    "active"?: boolean,"created_at"?: string,"full_name"?: string,"id"?: string,"preferred_language"?: string
                   }
                   Relationships: [
                     
@@ -490,11 +497,26 @@ isOneToOne: false
 "has_role":
 { Args: { "org": string,"roles": (Database["public"]['Enums']["app_role"])[] }; Returns: boolean
                            },
+"delete_form":
+{ Args: { "p_form": string }; Returns: undefined
+                           },
+"form_assessment_count":
+{ Args: { "p_form": string }; Returns: number
+                           },
 "is_member":
 { Args: { "org": string }; Returns: boolean
                            },
 "location_in_subtree":
 { Args: { "p_location": string,"p_root": string }; Returns: boolean
+                           },
+"member_email":
+{ Args: { "p_user": string }; Returns: string
+                           },
+"member_emails":
+{ Args: { [_ in never]: never }; Returns: {
+"user_id": string,
+"email": string
+ }[]
                            },
 "my_assessable_form_locations":
 { Args: { [_ in never]: never }; Returns: {
@@ -520,6 +542,31 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "form_versions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"reopen_assessment":
+{ Args: { "p_id": string }; Returns: {
+              "assessed_on": string,
+"assessors": (string)[],
+"created_at": string,
+"created_by": string,
+"deleted_at": string | null,
+"device_id": string | null,
+"form_version_id": string,
+"id": string,
+"language": string,
+"location_id": string,
+"organisation_id": string,
+"review_note": string | null,
+"status": Database["public"]['Enums']["assessment_status"],
+"submitted_at": string | null,
+"totals": Json | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "assessments"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -584,7 +631,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "app_role": "super_admin"|"form_editor"|"translator"|"manager"|"assessor"|"viewer","assessment_status": "draft"|"submitted"|"returned"|"approved","ticket_status": "open"|"pending"|"closed","version_status": "draft"|"published"|"archived"
+            "app_role": "super_admin"|"form_editor"|"translator"|"manager"|"assessor"|"viewer","assessment_status": "draft"|"submitted"|"returned"|"approved"|"rejected","ticket_status": "open"|"pending"|"closed","version_status": "draft"|"published"|"archived"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -951,7 +998,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["super_admin", "form_editor", "translator", "manager", "assessor", "viewer"],"assessment_status": ["draft", "submitted", "returned", "approved"],"ticket_status": ["open", "pending", "closed"],"version_status": ["draft", "published", "archived"]
+            "app_role": ["super_admin", "form_editor", "translator", "manager", "assessor", "viewer"],"assessment_status": ["draft", "submitted", "returned", "approved", "rejected"],"ticket_status": ["open", "pending", "closed"],"version_status": ["draft", "published", "archived"]
           }
         },"storage": {
           Enums: {

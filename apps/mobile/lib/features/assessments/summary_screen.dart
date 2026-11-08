@@ -19,8 +19,10 @@ import '../../data/repositories/assessment_repository.dart';
 import '../../data/database/app_database.dart';
 import '../../data/sync/sync_engine.dart';
 import '../../domain/form_definition.dart';
+import '../../domain/review_decision.dart';
 import '../../domain/scoring.dart';
 import '../../domain/text_resolver.dart';
+import 'review_decision_card.dart';
 
 class SummaryScreen extends ConsumerStatefulWidget {
   final String assessmentId;
@@ -294,6 +296,13 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     }
 
     final isReturned = assessment.status == 'returned';
+    final decision = reviewDecisionOf(
+      status: assessment.status,
+      reviewedBy: assessment.reviewedBy,
+      reviewedAt: assessment.reviewedAt,
+      note: assessment.reviewNote,
+      memberNames: {for (final m in _members) m.id: m.fullName},
+    );
     final isDraft = assessment.status == 'draft';
     final canSubmit = (isDraft || isReturned) && totals.missing.isEmpty;
 
@@ -328,46 +337,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Returned banner with reviewer note
-              if (isReturned) ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsetsDirectional.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF3CD),
-                    border: Border.all(color: const Color(0xFFFFD60A)),
-                    borderRadius: BorderRadius.circular(AppTheme.cardRadius),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.reply, color: Color(0xFF7A5800), size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              tr('assessments_returned'),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF7A5800),
-                              ),
-                            ),
-                            if (assessment.reviewNote != null &&
-                                assessment.reviewNote!.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                assessment.reviewNote!,
-                                style: const TextStyle(color: Color(0xFF7A5800)),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              // Who approved, returned or rejected it, when, and their message
+              if (decision != null) ...[
+                ReviewDecisionCard(decision: decision),
                 const SizedBox(height: 16),
               ],
 

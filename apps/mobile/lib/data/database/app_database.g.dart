@@ -117,6 +117,28 @@ class $LocalAssessmentsTable extends LocalAssessments
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _reviewedByMeta = const VerificationMeta(
+    'reviewedBy',
+  );
+  @override
+  late final GeneratedColumn<String> reviewedBy = GeneratedColumn<String>(
+    'reviewed_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reviewedAtMeta = const VerificationMeta(
+    'reviewedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> reviewedAt = GeneratedColumn<DateTime>(
+    'reviewed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _totalsJsonMeta = const VerificationMeta(
     'totalsJson',
   );
@@ -177,6 +199,8 @@ class $LocalAssessmentsTable extends LocalAssessments
     assessedOn,
     assessorsJson,
     reviewNote,
+    reviewedBy,
+    reviewedAt,
     totalsJson,
     createdAt,
     updatedAt,
@@ -272,6 +296,18 @@ class $LocalAssessmentsTable extends LocalAssessments
         reviewNote.isAcceptableOrUnknown(data['review_note']!, _reviewNoteMeta),
       );
     }
+    if (data.containsKey('reviewed_by')) {
+      context.handle(
+        _reviewedByMeta,
+        reviewedBy.isAcceptableOrUnknown(data['reviewed_by']!, _reviewedByMeta),
+      );
+    }
+    if (data.containsKey('reviewed_at')) {
+      context.handle(
+        _reviewedAtMeta,
+        reviewedAt.isAcceptableOrUnknown(data['reviewed_at']!, _reviewedAtMeta),
+      );
+    }
     if (data.containsKey('totals_json')) {
       context.handle(
         _totalsJsonMeta,
@@ -345,6 +381,14 @@ class $LocalAssessmentsTable extends LocalAssessments
         DriftSqlType.string,
         data['${effectivePrefix}review_note'],
       ),
+      reviewedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reviewed_by'],
+      ),
+      reviewedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}reviewed_at'],
+      ),
       totalsJson: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}totals_json'],
@@ -381,6 +425,10 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
   final String assessedOn;
   final String? assessorsJson;
   final String? reviewNote;
+
+  /// Who approved, returned or rejected it, and when. Set by the server.
+  final String? reviewedBy;
+  final DateTime? reviewedAt;
   final String? totalsJson;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -396,6 +444,8 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
     required this.assessedOn,
     this.assessorsJson,
     this.reviewNote,
+    this.reviewedBy,
+    this.reviewedAt,
     this.totalsJson,
     required this.createdAt,
     required this.updatedAt,
@@ -417,6 +467,12 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
     }
     if (!nullToAbsent || reviewNote != null) {
       map['review_note'] = Variable<String>(reviewNote);
+    }
+    if (!nullToAbsent || reviewedBy != null) {
+      map['reviewed_by'] = Variable<String>(reviewedBy);
+    }
+    if (!nullToAbsent || reviewedAt != null) {
+      map['reviewed_at'] = Variable<DateTime>(reviewedAt);
     }
     if (!nullToAbsent || totalsJson != null) {
       map['totals_json'] = Variable<String>(totalsJson);
@@ -443,6 +499,12 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
       reviewNote: reviewNote == null && nullToAbsent
           ? const Value.absent()
           : Value(reviewNote),
+      reviewedBy: reviewedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reviewedBy),
+      reviewedAt: reviewedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reviewedAt),
       totalsJson: totalsJson == null && nullToAbsent
           ? const Value.absent()
           : Value(totalsJson),
@@ -468,6 +530,8 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
       assessedOn: serializer.fromJson<String>(json['assessedOn']),
       assessorsJson: serializer.fromJson<String?>(json['assessorsJson']),
       reviewNote: serializer.fromJson<String?>(json['reviewNote']),
+      reviewedBy: serializer.fromJson<String?>(json['reviewedBy']),
+      reviewedAt: serializer.fromJson<DateTime?>(json['reviewedAt']),
       totalsJson: serializer.fromJson<String?>(json['totalsJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -488,6 +552,8 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
       'assessedOn': serializer.toJson<String>(assessedOn),
       'assessorsJson': serializer.toJson<String?>(assessorsJson),
       'reviewNote': serializer.toJson<String?>(reviewNote),
+      'reviewedBy': serializer.toJson<String?>(reviewedBy),
+      'reviewedAt': serializer.toJson<DateTime?>(reviewedAt),
       'totalsJson': serializer.toJson<String?>(totalsJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -506,6 +572,8 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
     String? assessedOn,
     Value<String?> assessorsJson = const Value.absent(),
     Value<String?> reviewNote = const Value.absent(),
+    Value<String?> reviewedBy = const Value.absent(),
+    Value<DateTime?> reviewedAt = const Value.absent(),
     Value<String?> totalsJson = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -523,6 +591,8 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
         ? assessorsJson.value
         : this.assessorsJson,
     reviewNote: reviewNote.present ? reviewNote.value : this.reviewNote,
+    reviewedBy: reviewedBy.present ? reviewedBy.value : this.reviewedBy,
+    reviewedAt: reviewedAt.present ? reviewedAt.value : this.reviewedAt,
     totalsJson: totalsJson.present ? totalsJson.value : this.totalsJson,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -552,6 +622,12 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
       reviewNote: data.reviewNote.present
           ? data.reviewNote.value
           : this.reviewNote,
+      reviewedBy: data.reviewedBy.present
+          ? data.reviewedBy.value
+          : this.reviewedBy,
+      reviewedAt: data.reviewedAt.present
+          ? data.reviewedAt.value
+          : this.reviewedAt,
       totalsJson: data.totalsJson.present
           ? data.totalsJson.value
           : this.totalsJson,
@@ -574,6 +650,8 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
           ..write('assessedOn: $assessedOn, ')
           ..write('assessorsJson: $assessorsJson, ')
           ..write('reviewNote: $reviewNote, ')
+          ..write('reviewedBy: $reviewedBy, ')
+          ..write('reviewedAt: $reviewedAt, ')
           ..write('totalsJson: $totalsJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -594,6 +672,8 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
     assessedOn,
     assessorsJson,
     reviewNote,
+    reviewedBy,
+    reviewedAt,
     totalsJson,
     createdAt,
     updatedAt,
@@ -613,6 +693,8 @@ class LocalAssessment extends DataClass implements Insertable<LocalAssessment> {
           other.assessedOn == this.assessedOn &&
           other.assessorsJson == this.assessorsJson &&
           other.reviewNote == this.reviewNote &&
+          other.reviewedBy == this.reviewedBy &&
+          other.reviewedAt == this.reviewedAt &&
           other.totalsJson == this.totalsJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -630,6 +712,8 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
   final Value<String> assessedOn;
   final Value<String?> assessorsJson;
   final Value<String?> reviewNote;
+  final Value<String?> reviewedBy;
+  final Value<DateTime?> reviewedAt;
   final Value<String?> totalsJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -646,6 +730,8 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
     this.assessedOn = const Value.absent(),
     this.assessorsJson = const Value.absent(),
     this.reviewNote = const Value.absent(),
+    this.reviewedBy = const Value.absent(),
+    this.reviewedAt = const Value.absent(),
     this.totalsJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -663,6 +749,8 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
     required String assessedOn,
     this.assessorsJson = const Value.absent(),
     this.reviewNote = const Value.absent(),
+    this.reviewedBy = const Value.absent(),
+    this.reviewedAt = const Value.absent(),
     this.totalsJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -685,6 +773,8 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
     Expression<String>? assessedOn,
     Expression<String>? assessorsJson,
     Expression<String>? reviewNote,
+    Expression<String>? reviewedBy,
+    Expression<DateTime>? reviewedAt,
     Expression<String>? totalsJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -702,6 +792,8 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
       if (assessedOn != null) 'assessed_on': assessedOn,
       if (assessorsJson != null) 'assessors_json': assessorsJson,
       if (reviewNote != null) 'review_note': reviewNote,
+      if (reviewedBy != null) 'reviewed_by': reviewedBy,
+      if (reviewedAt != null) 'reviewed_at': reviewedAt,
       if (totalsJson != null) 'totals_json': totalsJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -721,6 +813,8 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
     Value<String>? assessedOn,
     Value<String?>? assessorsJson,
     Value<String?>? reviewNote,
+    Value<String?>? reviewedBy,
+    Value<DateTime?>? reviewedAt,
     Value<String?>? totalsJson,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -738,6 +832,8 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
       assessedOn: assessedOn ?? this.assessedOn,
       assessorsJson: assessorsJson ?? this.assessorsJson,
       reviewNote: reviewNote ?? this.reviewNote,
+      reviewedBy: reviewedBy ?? this.reviewedBy,
+      reviewedAt: reviewedAt ?? this.reviewedAt,
       totalsJson: totalsJson ?? this.totalsJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -779,6 +875,12 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
     if (reviewNote.present) {
       map['review_note'] = Variable<String>(reviewNote.value);
     }
+    if (reviewedBy.present) {
+      map['reviewed_by'] = Variable<String>(reviewedBy.value);
+    }
+    if (reviewedAt.present) {
+      map['reviewed_at'] = Variable<DateTime>(reviewedAt.value);
+    }
     if (totalsJson.present) {
       map['totals_json'] = Variable<String>(totalsJson.value);
     }
@@ -810,6 +912,8 @@ class LocalAssessmentsCompanion extends UpdateCompanion<LocalAssessment> {
           ..write('assessedOn: $assessedOn, ')
           ..write('assessorsJson: $assessorsJson, ')
           ..write('reviewNote: $reviewNote, ')
+          ..write('reviewedBy: $reviewedBy, ')
+          ..write('reviewedAt: $reviewedAt, ')
           ..write('totalsJson: $totalsJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -3872,6 +3976,8 @@ typedef $$LocalAssessmentsTableCreateCompanionBuilder =
       required String assessedOn,
       Value<String?> assessorsJson,
       Value<String?> reviewNote,
+      Value<String?> reviewedBy,
+      Value<DateTime?> reviewedAt,
       Value<String?> totalsJson,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -3890,6 +3996,8 @@ typedef $$LocalAssessmentsTableUpdateCompanionBuilder =
       Value<String> assessedOn,
       Value<String?> assessorsJson,
       Value<String?> reviewNote,
+      Value<String?> reviewedBy,
+      Value<DateTime?> reviewedAt,
       Value<String?> totalsJson,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -3953,6 +4061,16 @@ class $$LocalAssessmentsTableFilterComposer
 
   ColumnFilters<String> get reviewNote => $composableBuilder(
     column: $table.reviewNote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reviewedBy => $composableBuilder(
+    column: $table.reviewedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get reviewedAt => $composableBuilder(
+    column: $table.reviewedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4036,6 +4154,16 @@ class $$LocalAssessmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get reviewedBy => $composableBuilder(
+    column: $table.reviewedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get reviewedAt => $composableBuilder(
+    column: $table.reviewedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get totalsJson => $composableBuilder(
     column: $table.totalsJson,
     builder: (column) => ColumnOrderings(column),
@@ -4108,6 +4236,16 @@ class $$LocalAssessmentsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get reviewedBy => $composableBuilder(
+    column: $table.reviewedBy,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get reviewedAt => $composableBuilder(
+    column: $table.reviewedAt,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get totalsJson => $composableBuilder(
     column: $table.totalsJson,
     builder: (column) => column,
@@ -4170,6 +4308,8 @@ class $$LocalAssessmentsTableTableManager
                 Value<String> assessedOn = const Value.absent(),
                 Value<String?> assessorsJson = const Value.absent(),
                 Value<String?> reviewNote = const Value.absent(),
+                Value<String?> reviewedBy = const Value.absent(),
+                Value<DateTime?> reviewedAt = const Value.absent(),
                 Value<String?> totalsJson = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -4186,6 +4326,8 @@ class $$LocalAssessmentsTableTableManager
                 assessedOn: assessedOn,
                 assessorsJson: assessorsJson,
                 reviewNote: reviewNote,
+                reviewedBy: reviewedBy,
+                reviewedAt: reviewedAt,
                 totalsJson: totalsJson,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -4204,6 +4346,8 @@ class $$LocalAssessmentsTableTableManager
                 required String assessedOn,
                 Value<String?> assessorsJson = const Value.absent(),
                 Value<String?> reviewNote = const Value.absent(),
+                Value<String?> reviewedBy = const Value.absent(),
+                Value<DateTime?> reviewedAt = const Value.absent(),
                 Value<String?> totalsJson = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -4220,6 +4364,8 @@ class $$LocalAssessmentsTableTableManager
                 assessedOn: assessedOn,
                 assessorsJson: assessorsJson,
                 reviewNote: reviewNote,
+                reviewedBy: reviewedBy,
+                reviewedAt: reviewedAt,
                 totalsJson: totalsJson,
                 createdAt: createdAt,
                 updatedAt: updatedAt,

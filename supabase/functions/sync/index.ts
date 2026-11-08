@@ -25,7 +25,15 @@ type Rejected = { table: string; id: string; reason: string; status?: string }
 const PUSH_TABLES = new Set(['assessments', 'responses'])
 
 // Fields the server owns — never overwritten by a client push.
-const ASSESSMENT_PROTECTED = new Set(['status', 'totals', 'submitted_at', 'review_note', 'deleted_at'])
+const ASSESSMENT_PROTECTED = new Set([
+  'status',
+  'totals',
+  'submitted_at',
+  'review_note',
+  'reviewed_by',
+  'reviewed_at',
+  'deleted_at',
+])
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return options()
@@ -214,7 +222,11 @@ Deno.serve(async (req) => {
     const FV_COLS = 'id, form_id, version, status, definition, updated_at'
     const noRows = Promise.resolve({ data: [] as Record<string, unknown>[] })
 
-    const [asmntRes, assignedFvRes, referencedFvRes, helpRes, locationRes, memberRes] = await Promise.all([
+    // Versions the phone already holds whose status changed since the last sync (e.g. superseded
+    // by a newly published one). Scoped to the caller's organisation: the ids come from the client.
+    const heldIds = known_form_version_ids.slice(0, 500)
+
+    const [asmntRes, assignedFvRes, referencedFvRes, changedFvRes, helpRes, locationRes, memberRes] = await Promise.all([
       admin
         .from('assessments')
         .select('*')
@@ -229,6 +241,15 @@ Deno.serve(async (req) => {
 
       referencedVersionIds.length
         ? admin.from('form_versions').select(FV_COLS).in('id', referencedVersionIds)
+        : noRows,
+
+      heldIds.length
+        ? admin
+            .from('form_versions')
+            .select(`${FV_COLS}, forms!inner(organisation_id)`)
+            .in('id', heldIds)
+            .eq('forms.organisation_id', orgId)
+            .gt('updated_at', since)
         : noRows,
 
       admin
@@ -260,6 +281,9 @@ Deno.serve(async (req) => {
     const knownVersions = new Set(known_form_version_ids)
     const versionsById = new Map<string, Record<string, unknown>>()
     for (const fv of [...(assignedFvRes.data ?? []), ...(referencedFvRes.data ?? [])]) {
+      versionsById.set(fv.id as string, fv)
+    }
+    for (const { forms: _org, ...fv } of (changedFvRes.data ?? []) as Record<string, unknown>[]) {
       versionsById.set(fv.id as string, fv)
     }
     const formVersions = [...versionsById.values()].filter(

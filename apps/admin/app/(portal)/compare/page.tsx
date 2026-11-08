@@ -24,7 +24,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
+import { Pagination } from "@/components/Pagination";
+import { pageSlice } from "@/lib/pagination";
 import { t, fmtDate, cn } from "@/lib/utils";
+
+const PICKER_PAGE_SIZE = 8;
 
 const COLORS = ["var(--primary)", "#B79B6A", "#7B8A83", "#A4877C"];
 type AssessmentRow = {
@@ -45,6 +49,7 @@ export default function ComparePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
+  const [pickerPage, setPickerPage] = useState(1);
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -100,6 +105,7 @@ export default function ComparePage() {
   const filtered = rows.filter((row) =>
     t(row.locations?.name).toLowerCase().includes(search.toLowerCase())
   );
+  const picker = pageSlice(filtered, pickerPage, PICKER_PAGE_SIZE);
 
   return (
     <div className="page-container">
@@ -122,7 +128,10 @@ export default function ComparePage() {
               <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
               <Input
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setPickerPage(1);
+                }}
                 aria-label="Find a location to compare"
                 placeholder="Find a location…"
                 className="pl-9"
@@ -146,8 +155,8 @@ export default function ComparePage() {
                 description="Approved assessments will appear here for comparison."
               />
             ) : (
-              <div className="max-h-[480px] space-y-2 overflow-y-auto">
-                {filtered.map((row) => {
+              <div className="space-y-2">
+                {picker.items.map((row) => {
                   const index = selected.indexOf(row.id),
                     active = index >= 0;
                   return (
@@ -195,6 +204,16 @@ export default function ComparePage() {
                   </p>
                 )}
               </div>
+            )}
+            {!loading && !error && filtered.length > 0 && (
+              <Pagination
+                page={picker.page}
+                total={picker.total}
+                pageSize={PICKER_PAGE_SIZE}
+                noun="assessments"
+                onPageChange={setPickerPage}
+                className="mt-3"
+              />
             )}
             {selected.length > 0 && (
               <Button
@@ -250,7 +269,11 @@ export default function ComparePage() {
                   <div className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={barData} margin={{ left: -20, right: 8, bottom: 12 }}>
-                        <CartesianGrid strokeDasharray="3 5" stroke="var(--border)" vertical={false} />
+                        <CartesianGrid
+                          strokeDasharray="3 5"
+                          stroke="var(--border)"
+                          vertical={false}
+                        />
                         <XAxis
                           dataKey="name"
                           tick={{ fontSize: 10, fill: "var(--muted)" }}
@@ -265,7 +288,13 @@ export default function ComparePage() {
                         />
                         <Tooltip
                           formatter={(value) => [`${Number(value).toFixed(1)}%`, "Score"]}
-                          contentStyle={{ borderRadius: 4, border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text-main)", fontSize: 12 }}
+                          contentStyle={{
+                            borderRadius: 4,
+                            border: "1px solid var(--border)",
+                            background: "var(--surface)",
+                            color: "var(--text-main)",
+                            fontSize: 12,
+                          }}
                         />
                         <Bar dataKey="pct" radius={[6, 6, 0, 0]} maxBarSize={60}>
                           {barData.map((row, index) => (

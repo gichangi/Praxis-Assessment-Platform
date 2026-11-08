@@ -79,6 +79,9 @@ class SyncEngine {
   /// How often to look for newly assigned forms and upload finished work while the app is open.
   static const _pollInterval = Duration(minutes: 2);
 
+  /// Bump when the server sends something new that older cursors would never re-send.
+  static const _syncSchema = '6';
+
   void start() {
     _connectivitySub = Connectivity().onConnectivityChanged.listen((results) {
       if (results.any((r) => r != ConnectivityResult.none)) sync();
@@ -130,7 +133,10 @@ class SyncEngine {
 
   Future<SyncStatus> _doSync() async {
     final deviceId = await _deviceId();
-    final cursor = await storage.read(key: 'sync_cursor');
+    // A phone updated from an older version has never been told who reviewed its assessments, so
+    // it starts over from the beginning once.
+    final schemaSeen = await storage.read(key: 'sync_schema');
+    final cursor = schemaSeen == _syncSchema ? await storage.read(key: 'sync_cursor') : null;
 
     final dirtyAssessments = await db.assessmentsDao.getDirty();
     final dirtyResponses = await db.assessmentsDao.getDirtyResponses();
@@ -181,6 +187,7 @@ class SyncEngine {
 
     await _applyPull(result.pull);
     await storage.write(key: 'sync_cursor', value: result.cursor);
+    await storage.write(key: 'sync_schema', value: _syncSchema);
     await _uploadPendingAttachments();
 
     if (refusals.isNotEmpty) return SyncError(refusals.first.submitMessage);
@@ -277,6 +284,8 @@ class SyncEngine {
         createdBy: Value(a['created_by'] as String),
         assessedOn: Value(a['assessed_on'] as String),
         reviewNote: Value(a['review_note'] as String?),
+        reviewedBy: Value(a['reviewed_by'] as String?),
+        reviewedAt: Value(a['reviewed_at'] == null ? null : DateTime.parse(a['reviewed_at'] as String)),
         assessorsJson: Value(a['assessors'] != null ? jsonEncode(a['assessors']) : null),
         totalsJson: Value(a['totals'] != null ? jsonEncode(a['totals']) : null),
         updatedAt: Value(DateTime.parse(a['updated_at'] as String)),

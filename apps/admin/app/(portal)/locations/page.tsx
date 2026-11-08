@@ -6,6 +6,11 @@ import { Card } from "@/components/ui/card";
 import { t } from "@/lib/utils";
 import { NewLocationButton } from "./NewLocationButton";
 import { LocationTree } from "./LocationTree";
+import { Pagination } from "@/components/Pagination";
+import { pageSlice, parsePage, parsePageSize } from "@/lib/pagination";
+
+// Pages count top-level places (regions); each brings its whole branch so no tree is split.
+const BRANCHES_PER_PAGE = 10;
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +23,11 @@ export type LocationRow = {
   active: boolean;
 };
 
-export default async function LocationsPage() {
+export default async function LocationsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string; size?: string };
+}) {
   const sb = createClient();
   const { data: locations, error } = await sb
     .from("locations")
@@ -29,6 +38,20 @@ export default async function LocationsPage() {
   const rows = (locations ?? []) as LocationRow[];
   const rootCount = rows.filter((l) => l.parent_id === null).length;
   const totalCount = rows.length;
+
+  const roots = rows.filter((l) => l.parent_id === null);
+  const pageSize = parsePageSize(searchParams.size, BRANCHES_PER_PAGE);
+  const paged = pageSlice(roots, parsePage(searchParams.page), pageSize);
+  const keep = new Set(paged.items.map((r) => r.id));
+  // Rows are ordered by level, so a parent is always seen before its children.
+  const shown = rows.filter((l) => {
+    if (l.parent_id === null) return keep.has(l.id);
+    if (keep.has(l.parent_id)) {
+      keep.add(l.id);
+      return true;
+    }
+    return false;
+  });
 
   return (
     <div className="page-container">
@@ -63,7 +86,19 @@ export default async function LocationsPage() {
           />
         </Card>
       )}
-      {rows.length > 0 && <LocationTree locations={rows} />}
+      {rows.length > 0 && (
+        <>
+          <LocationTree locations={shown} />
+          <Pagination
+            page={paged.page}
+            total={paged.total}
+            pageSize={pageSize}
+            defaultPageSize={BRANCHES_PER_PAGE}
+            noun="top-level locations"
+            basePath="/locations"
+          />
+        </>
+      )}
     </div>
   );
 }

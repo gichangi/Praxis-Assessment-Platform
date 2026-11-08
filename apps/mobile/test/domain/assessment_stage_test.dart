@@ -20,6 +20,7 @@ void main() {
     test('reviewer decisions win over sync state', () {
       expect(assessmentStage(status: 'returned', hasPendingChanges: true), AssessmentStage.returned);
       expect(assessmentStage(status: 'approved', hasPendingChanges: false), AssessmentStage.approved);
+      expect(assessmentStage(status: 'rejected', hasPendingChanges: false), AssessmentStage.rejected);
     });
 
     test('an unknown status is treated as a draft rather than hidden', () {

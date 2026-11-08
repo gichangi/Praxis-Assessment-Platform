@@ -34,7 +34,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -64,6 +64,10 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(localForms);
         await m.createTable(localFormLocations);
         await m.addColumn(localFormVersions, localFormVersions.status);
+      }
+      if (from < 6) {
+        await m.addColumn(localAssessments, localAssessments.reviewedBy);
+        await m.addColumn(localAssessments, localAssessments.reviewedAt);
       }
     },
   );

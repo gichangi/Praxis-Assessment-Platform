@@ -28,6 +28,12 @@ export async function requireUser(req: Request) {
   const admin = adminClient()
   const { data: { user }, error } = await admin.auth.getUser(token)
   if (error || !user) throw Object.assign(new Error('Invalid or expired token'), { status: 401 })
+
+  // A deactivated account is refused straight away, not when its session happens to expire.
+  const { data: profile } = await admin.from('profiles').select('active').eq('id', user.id).maybeSingle()
+  if (profile && profile.active === false) {
+    throw Object.assign(new Error('This account has been deactivated'), { status: 403 })
+  }
   return { user, token }
 }
 

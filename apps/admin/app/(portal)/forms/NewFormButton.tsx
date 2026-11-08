@@ -18,14 +18,12 @@ import { toast } from "@/components/ui/toast";
 export function NewFormButton() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [key, setKey] = useState("");
-  const [keyEdited, setKeyEdited] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const sb = createClient();
 
   async function create() {
-    if (!title.trim() || !key.trim()) return;
+    if (!title.trim()) return;
     setLoading(true);
     const mem = await myMembership(sb, FORM_MANAGER_ROLES);
     if (!mem) {
@@ -39,19 +37,12 @@ export function NewFormButton() {
 
     const { data: form, error: formErr } = await sb
       .from("forms")
-      .insert({
-        organisation_id: mem.organisation_id,
-        key: key.trim(),
-        title: { en: title.trim() },
-      })
-      .select("id")
+      // The database gives the form its code (form_001, form_002, ...).
+      .insert({ organisation_id: mem.organisation_id, title: { en: title.trim() } })
+      .select("id, key")
       .single();
     if (formErr) {
-      toast({
-        title:
-          formErr.code === "23505" ? "A form with this key already exists" : formErr.message,
-        variant: "destructive",
-      });
+      toast({ title: formErr.message, variant: "destructive" });
       setLoading(false);
       return;
     }
@@ -59,7 +50,7 @@ export function NewFormButton() {
     // Create initial draft version
     const emptyDef = {
       schema_version: 1,
-      form_key: key.trim(),
+      form_key: form.key,
       version: "1.0.0",
       default_language: "en",
       languages: ["en"],
@@ -83,6 +74,11 @@ export function NewFormButton() {
 
     setLoading(false);
     setOpen(false);
+    toast({
+      title: "Form created",
+      description: "Add your questions, then publish it and assign it to your team.",
+      variant: "success",
+    });
     router.push(`/forms/${fv.id}/builder`);
     router.refresh();
   }
@@ -114,36 +110,12 @@ export function NewFormButton() {
                 id="form-title"
                 required
                 value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                  if (!keyEdited)
-                    setKey(
-                      e.target.value
-                        .toLowerCase()
-                        .replace(/\s+/g, "_")
-                        .replace(/[^a-z0-9_]/g, "")
-                    );
-                }}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="Service Quality Assessment"
               />
-            </div>
-            <div>
-              <label htmlFor="form-key" className="field-label">
-                Form key
-              </label>
-              <Input
-                id="form-key"
-                required
-                pattern="[a-z0-9_]+"
-                value={key}
-                onChange={(e) => {
-                  setKey(e.target.value);
-                  setKeyEdited(true);
-                }}
-                placeholder="service_quality_assessment"
-              />
               <p className="mt-1 text-xs text-muted">
-                Permanent identifier. Lower-case, underscores only.
+                The form gets its own short code, like form_001. You can rename the form later; the
+                code stays the same.
               </p>
             </div>
           </form>
@@ -151,11 +123,7 @@ export function NewFormButton() {
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              form="new-form"
-              disabled={loading || !title.trim() || !key.trim()}
-            >
+            <Button type="submit" form="new-form" disabled={loading || !title.trim()}>
               {loading ? "Creating…" : "Create"}
             </Button>
           </DialogFooter>

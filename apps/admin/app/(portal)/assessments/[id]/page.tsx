@@ -1,147 +1,189 @@
-import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { t, fmtDate, fmtPct } from "@/lib/utils";
-import { ReviewActions } from "./ReviewActions";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { CalendarDays, FileText, Globe, MapPin, Pencil, User } from "lucide-react";
+import type { FormDefinition } from "@assessment/core";
+import { createClient } from "@/lib/supabase/server";
+import { AssessmentEntry } from "@/components/assessment/AssessmentEntry";
+import { AssessmentIntro, LANGUAGE_NAMES, SetupStatic } from "@/components/assessment/setup";
+import { ReviewDecision } from "@/components/assessment/ReviewDecision";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { canEditAssessment } from "@/lib/assessment-access";
+import { fromRows } from "@/lib/assessment-entry";
+import { statusVariant } from "@/lib/assessment-status";
+import { fmtDate, fmtPct, t } from "@/lib/utils";
+import { ReviewActions } from "./ReviewActions";
 
 export const dynamic = "force-dynamic";
 
+type Totals = {
+  score?: number;
+  max?: number;
+  pct?: number;
+  sections?: Record<string, { score: number; max: number; pct: number }>;
+};
+
 export default async function AssessmentDetailPage({ params }: { params: { id: string } }) {
   const sb = createClient();
-  const { data: a } = await sb
-    .from("assessments")
-    .select(
-      "*, form_versions(version, definition), locations(name), profiles!created_by(full_name)"
-    )
-    .eq("id", params.id)
-    .single();
+  const [{ data: a }, { data: auth }] = await Promise.all([
+    sb
+      .from("assessments")
+      .select(
+        "*, form_versions(version, definition, forms(title)), locations(name), profiles!created_by(full_name), reviewer:profiles!reviewed_by(full_name)"
+      )
+      .eq("id", params.id)
+      .single(),
+    sb.auth.getUser(),
+  ]);
 
   if (!a) notFound();
 
-  const { data: responses } = await sb.from("responses").select("*").eq("assessment_id", params.id);
+  const { data: rows } = await sb
+    .from("responses")
+    .select("item_key, value, not_assessed, note")
+    .eq("assessment_id", params.id);
 
-  const totals = a.totals as {
-    score?: number;
-    max?: number;
-    pct?: number;
-    sections?: Record<string, { score: number; max: number; pct: number }>;
+  const version = a.form_versions as {
+    version: string;
+    definition: unknown;
+    forms: { title: Record<string, string> } | null;
   } | null;
-  const def = (a.form_versions as { definition?: Record<string, unknown> })?.definition;
+  if (!version) notFound();
+
+  // Only the person it belongs to can change it, and never once it is approved.
+  const canEdit = canEditAssessment({
+    status: a.status,
+    createdBy: a.created_by,
+    assessors: a.assessors,
+    userId: auth.user?.id,
+  });
+  const mine = !!auth.user && a.created_by === auth.user.id;
+
+  const totals = a.totals as Totals | null;
+  const place = t((a.locations as { name?: Record<string, string> } | null)?.name);
+  const title = t(version.forms?.title);
+  const date = fmtDate(a.assessed_on);
+  const language = LANGUAGE_NAMES[a.language] ?? a.language;
+  const author = (a.profiles as { full_name?: string } | null)?.full_name ?? "—";
+  const icon = "h-4 w-4 shrink-0 text-muted";
+
+  const badge = <Badge variant={statusVariant(a.status)}>{a.status}</Badge>;
 
   return (
-    <div className="page-container">
-      <div className="flex flex-wrap items-center gap-3">
-        <Button asChild variant="ghost" size="icon">
-          <Link href="/assessments" aria-label="Back to assessments">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <p className="eyebrow">ASSESSMENT DETAILS</p>
-          <h1 className="page-title">
-            {t((a.locations as { name?: Record<string, string> })?.name)} — {fmtDate(a.assessed_on)}
-          </h1>
-          <p className="text-sm text-muted">
-            {(a.profiles as { full_name?: string })?.full_name ?? "—"} · v
-            {(a.form_versions as { version?: string })?.version}
-          </p>
+    <AssessmentEntry
+      readOnly
+      title={title}
+      place={place}
+      dateLabel={date}
+      languageLabel={language}
+      statusBadge={badge}
+      sectionScores={totals?.sections}
+      intro={
+        <AssessmentIntro
+          backHref="/assessments"
+          backLabel="Back to assessments"
+          title="Assessment details"
+          description={`${mine ? "Started by you" : `Started by ${author}`} on ${date}.`}
+        />
+      }
+      setup={
+        <>
+          <SetupStatic
+            step={1}
+            label="Form"
+            icon={<FileText className={icon} aria-hidden="true" />}
+            aside={`v${version.version}`}
+          >
+            {title}
+          </SetupStatic>
+          <SetupStatic
+            step={2}
+            label="Location"
+            icon={<MapPin className={icon} aria-hidden="true" />}
+          >
+            {place}
+          </SetupStatic>
+          <SetupStatic
+            step={3}
+            label="Date"
+            icon={<CalendarDays className={icon} aria-hidden="true" />}
+          >
+            {date}
+          </SetupStatic>
+          <SetupStatic
+            step={4}
+            label="Language"
+            icon={<Globe className={icon} aria-hidden="true" />}
+          >
+            {language}
+          </SetupStatic>
+          <SetupStatic
+            step={5}
+            label="Assessor"
+            icon={<User className={icon} aria-hidden="true" />}
+          >
+            {author}
+          </SetupStatic>
+        </>
+      }
+      summary={
+        <div className="space-y-4">
+          <ReviewDecision
+            status={a.status}
+            reviewer={(a.reviewer as { full_name?: string } | null)?.full_name}
+            reviewedAt={a.reviewed_at}
+            note={a.review_note}
+          />
+          {totals && typeof totals.score === "number" && (
+            <div className="rounded-xl border border-border bg-bg/60 p-4">
+              <p className="text-xs text-muted">Overall score</p>
+              <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
+                <span className="text-3xl font-bold text-primary">{totals.score}</span>
+                <span className="text-lg text-muted">/ {totals.max}</span>
+                <span className="ms-auto text-lg font-medium">{fmtPct(totals.pct)}</span>
+              </p>
+            </div>
+          )}
+          {a.status === "submitted" && (
+            <ReviewActions assessmentId={a.id} reviewNote={a.review_note ?? ""} />
+          )}
         </div>
-        <Badge
-          className="ms-auto"
-          variant={
-            a.status === "approved" ? "success" : a.status === "submitted" ? "warning" : "outline"
-          }
-        >
-          {a.status}
-        </Badge>
-      </div>
-
-      {/* Scores */}
-      {totals && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Scores</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4 flex items-end gap-2">
-              <span className="text-3xl font-bold text-primary">{totals.score}</span>
-              <span className="text-lg text-muted">/ {totals.max}</span>
-              <span className="ms-2 text-lg font-medium text-text-main">{fmtPct(totals.pct)}</span>
-            </div>
-            {totals.sections && (
-              <div className="space-y-2">
-                {Object.entries(totals.sections).map(([key, sec]) => (
-                  <div key={key} className="flex flex-wrap items-center gap-3 py-2">
-                    <span className="w-full text-sm capitalize sm:w-40">
-                      {key.replace(/_/g, " ")}
-                    </span>
-                    <div className="flex-1 bg-bg rounded-full h-2 overflow-hidden">
-                      <div
-                        className="h-2 rounded-full bg-primary transition-all"
-                        style={{ width: `${Math.max(0, Math.min(100, sec.pct ?? 0))}%` }}
-                      />
-                    </div>
-                    <span className="text-sm tabular-nums w-24 text-end">
-                      {sec.score}/{sec.max} ({fmtPct(sec.pct)})
-                    </span>
-                  </div>
-                ))}
-              </div>
+      }
+      actions={
+        canEdit ? (
+          <div className="space-y-2">
+            <Button asChild className="h-11 w-full">
+              <Link href={`/assessments/${a.id}/edit`}>
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+                Edit assessment
+              </Link>
+            </Button>
+            {a.status === "submitted" && (
+              <p className="text-xs text-muted">
+                Editing moves it back to draft until you submit it again.
+              </p>
             )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Review actions (submitted only) */}
-      {a.status === "submitted" && (
-        <ReviewActions assessmentId={a.id} reviewNote={a.review_note ?? ""} />
-      )}
-
-      {/* Responses table */}
-      {def && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Responses ({responses?.length ?? 0})</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="data-table">
-                <thead>
-                  <tr className="border-b border-border bg-bg text-muted text-left">
-                    <th className="px-4 py-2 font-medium">Item</th>
-                    <th className="px-4 py-2 font-medium">Value</th>
-                    <th className="px-4 py-2 font-medium">Note</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(responses ?? []).map((r) => (
-                    <tr
-                      key={r.item_key}
-                      className="border-b border-border last:border-0 hover:bg-bg"
-                    >
-                      <td className="px-4 py-2 font-mono text-xs">{r.item_key}</td>
-                      <td className="px-4 py-2">
-                        {r.not_assessed ? (
-                          <span className="text-muted italic">Not assessed</span>
-                        ) : (
-                          (r.value ?? <span className="text-muted">—</span>)
-                        )}
-                      </td>
-                      <td className="px-4 py-2 text-muted text-xs max-w-xs truncate">
-                        {r.note ?? "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted">
+            {a.status === "approved" || a.status === "rejected"
+              ? `${a.status === "approved" ? "Approved" : "Rejected"} assessments can’t be edited.`
+              : mine
+                ? "This assessment can’t be edited."
+                : "Only the person who started it can edit it."}
+          </p>
+        )
+      }
+      definition={version.definition as FormDefinition}
+      language={a.language}
+      meta={{
+        id: a.id,
+        organisationId: a.organisation_id,
+        formVersionId: a.form_version_id,
+        locationId: a.location_id,
+        assessedOn: a.assessed_on,
+      }}
+      initialAnswers={fromRows(rows ?? [])}
+    />
   );
 }

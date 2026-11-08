@@ -136,6 +136,39 @@
   "@assessments_status_returned": {
     "description": "assessments status returned"
   },
+  "assessments_status_rejected": "Rejected",
+  "@assessments_status_rejected": {
+    "description": "assessments status rejected"
+  },
+  "assessments_decision_approved_by": "Approved by {name}",
+  "@assessments_decision_approved_by": {
+    "description": "assessments decision approved by",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "assessments_decision_returned_by": "Returned by {name}",
+  "@assessments_decision_returned_by": {
+    "description": "assessments decision returned by",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "assessments_decision_rejected_by": "Rejected by {name}",
+  "@assessments_decision_rejected_by": {
+    "description": "assessments decision rejected by",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "assessments_decision_message": "Message",
+  "@assessments_decision_message": {
+    "description": "assessments decision message"
+  },
+  "assessments_decision_no_message": "No message was left.",
+  "@assessments_decision_no_message": {
+    "description": "assessments decision no message"
+  },
   "assessments_status_approved": "Approved",
   "@assessments_status_approved": {
     "description": "assessments status approved"

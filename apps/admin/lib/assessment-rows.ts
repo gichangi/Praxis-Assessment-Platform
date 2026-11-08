@@ -20,6 +20,10 @@ export function assessmentRows(rows: RelatedAssessment[]): AssessmentTableRow[] 
       date: row.assessed_on,
       location: t((row.locations as { name?: Record<string, string> } | null)?.name),
       assessor: (row.profiles as { full_name?: string } | null)?.full_name ?? "",
+      form: t(
+        (row.form_versions as { forms?: { title?: Record<string, string> } | null } | null)?.forms
+          ?.title
+      ),
       version: (row.form_versions as { version?: string } | null)?.version,
       score: totals?.score ?? null,
       max: totals?.max ?? null,

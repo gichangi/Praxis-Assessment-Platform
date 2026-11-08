@@ -189,6 +189,13 @@ begin
     )
   on conflict (id) do nothing;
 
+  -- Who decided on the two reviewed assessments, and what they said.
+  update assessments set reviewed_by = admin_id, reviewed_at = '2026-09-16 10:00:00+00',
+         review_note = coalesce(review_note, 'Approved. Scores agree with the verified Garowe fixture.')
+   where id = a_garowe;
+  update assessments set reviewed_by = admin_id, reviewed_at = '2026-09-10 11:00:00+00'
+   where id = a_kismayo;
+
   -- ── Responses: Garowe (approved) — fixture values, score 116/228 ──────────────
   insert into responses (assessment_id, item_key, value, not_assessed, updated_by)
   values

@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import type { FormDefinition } from "@assessment/core";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -10,80 +10,103 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LANGUAGE_NAMES } from "@/components/assessment/setup";
+import { findItem, renameSection } from "@/lib/builder-ops";
 
 type Item = FormDefinition["sections"][number]["items"][number];
-type Section = FormDefinition["sections"][number];
 
 type Props = {
   def: FormDefinition;
   selectedKey: string | null;
+  /** The language the wording is edited in. */
+  lang: string;
   onChange: (updatedDef: FormDefinition) => void;
 };
 
-const ITEM_TYPES = ["scale", "yes_no", "single_choice", "text", "number", "photo", "gps"] as const;
+const ITEM_TYPES: { value: Item["type"]; label: string }[] = [
+  { value: "scale", label: "Scale" },
+  { value: "yes_no", label: "Yes / No" },
+  { value: "single_choice", label: "Single choice" },
+  { value: "text", label: "Text" },
+  { value: "number", label: "Number" },
+  { value: "photo", label: "Photo" },
+  { value: "gps", label: "GPS" },
+];
 
-export function ItemEditor({ def, selectedKey, onChange }: Props) {
-  // Find whether selected key is a section or item
+const LABEL = "mb-1.5 block text-xs font-medium text-muted";
+const TEXTAREA =
+  "flex min-h-[72px] w-full resize-y rounded border border-border bg-surface px-3 py-2 text-sm text-text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+
+/** Details of the selected section or question. */
+export function ItemEditor({ def, selectedKey, lang, onChange }: Props) {
   const section = def.sections.find((s) => s.key === selectedKey);
-  const itemResult = def.sections
-    .flatMap((s) => s.items.map((it) => ({ item: it, section: s })))
-    .find(({ item }) => item.key === selectedKey);
+  const found = findItem(def, selectedKey);
 
-  if (!selectedKey) {
+  if (!selectedKey || (!section && !found)) {
     return (
       <div className="flex min-h-64 flex-col items-center justify-center px-8 text-center text-sm">
         <p className="font-medium">Make each question count.</p>
         <p className="mt-2 max-w-xs text-xs leading-6 text-muted">
-          Select a section or question from the structure panel to view its details.
+          Select a section or question to see and change its details here.
         </p>
       </div>
     );
   }
+  if (section)
+    return <SectionEditor def={def} sectionKey={section.key} lang={lang} onChange={onChange} />;
+  return <ItemFieldEditor def={def} item={found!.item} lang={lang} onChange={onChange} />;
+}
 
-  if (section) return <SectionEditor def={def} section={section} onChange={onChange} />;
-  if (itemResult)
-    return (
-      <ItemFieldEditor
-        def={def}
-        item={itemResult.item}
-        parentSection={itemResult.section}
-        onChange={onChange}
-      />
-    );
-  return null;
+function Heading({ lang, def, children }: { lang: string; def: FormDefinition; children: string }) {
+  return (
+    <div>
+      <h3 className="text-sm font-semibold">{children}</h3>
+      {lang !== def.default_language && (
+        <p className="mt-1 text-xs text-muted">Writing in {LANGUAGE_NAMES[lang] ?? lang}.</p>
+      )}
+    </div>
+  );
 }
 
 function SectionEditor({
   def,
-  section,
+  sectionKey,
+  lang,
   onChange,
 }: {
   def: FormDefinition;
-  section: Section;
+  sectionKey: string;
+  lang: string;
   onChange: (d: FormDefinition) => void;
 }) {
-  const [title, setTitle] = useState(section.title?.["en"] ?? "");
-
+  const section = def.sections.find((s) => s.key === sectionKey)!;
+  const [title, setTitle] = useState(section.title?.[lang] ?? "");
   useEffect(() => {
-    setTitle(section.title?.["en"] ?? "");
-  }, [section.key]);
-
-  function save() {
-    const updated = structuredClone(def);
-    const s = updated.sections.find((x) => x.key === section.key)!;
-    s.title = { ...s.title, en: title };
-    onChange(updated);
-  }
+    setTitle(section.title?.[lang] ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionKey, lang]);
 
   return (
-    <div className="p-6 space-y-5">
-      <h3 className="font-medium text-sm">Section — {section.key}</h3>
+    <div className="space-y-5 p-5">
+      <Heading lang={lang} def={def}>
+        Section
+      </Heading>
       <div>
-        <label className="mb-1.5 block text-xs font-medium text-muted">Title (English)</label>
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} onBlur={save} />
+        <label className={LABEL} htmlFor="section-title">
+          Name
+        </label>
+        <Input
+          id="section-title"
+          value={title}
+          placeholder={section.title?.[def.default_language]}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={() =>
+            title.trim() && onChange(renameSection(def, sectionKey, lang, title.trim()))
+          }
+        />
       </div>
       <p className="text-xs text-muted">
-        Key: <code className="bg-bg px-1 rounded">{section.key}</code>
+        Key: <code className="rounded bg-bg px-1">{section.key}</code>
       </p>
     </div>
   );
@@ -92,98 +115,120 @@ function SectionEditor({
 function ItemFieldEditor({
   def,
   item,
-  parentSection,
+  lang,
   onChange,
 }: {
   def: FormDefinition;
   item: Item;
-  parentSection: Section;
+  lang: string;
   onChange: (d: FormDefinition) => void;
 }) {
-  const [title, setTitle] = useState(item.title?.["en"] ?? "");
-  const [guidance, setGuidance] = useState(item.guidance?.["en"] ?? "");
-  const [type, setType] = useState(item.type);
-  const [scale, setScale] = useState(item.scale ?? "");
+  const [title, setTitle] = useState(item.title?.[lang] ?? "");
+  const [guidance, setGuidance] = useState(item.guidance?.[lang] ?? "");
   const [weight, setWeight] = useState(String(item.weight ?? 1));
-  const [includeInTotal, setIncludeInTotal] = useState(item.include_in_total ?? true);
 
   useEffect(() => {
-    setTitle(item.title?.["en"] ?? "");
-    setGuidance(item.guidance?.["en"] ?? "");
-    setType(item.type);
-    setScale(item.scale ?? "");
+    setTitle(item.title?.[lang] ?? "");
+    setGuidance(item.guidance?.[lang] ?? "");
     setWeight(String(item.weight ?? 1));
-    setIncludeInTotal(item.include_in_total ?? true);
-  }, [item.key]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.key, lang]);
 
-  function save(overrides: Partial<Pick<Item, "type" | "scale" | "include_in_total">> = {}) {
-    const updated = structuredClone(def);
-    const sec = updated.sections.find((s) => s.key === parentSection.key)!;
-    const it = sec.items.find((x) => x.key === item.key)!;
-    it.title = { ...it.title, en: title };
-    it.guidance = guidance ? { ...it.guidance, en: guidance } : undefined;
-    const nextType = overrides.type ?? type;
-    it.type = nextType;
-    it.scale = nextType === "scale" ? (overrides.scale ?? (scale || undefined)) : undefined;
-    it.weight = parseFloat(weight) || 1;
-    it.include_in_total = overrides.include_in_total ?? includeInTotal;
-    onChange(updated);
+  /** Apply `edit` to this question inside a copy of the definition. */
+  function update(edit: (it: Item) => void) {
+    const next = structuredClone(def);
+    const it = findItem(next, item.key)!.item;
+    edit(it);
+    onChange(next);
+  }
+
+  function saveWording() {
+    update((it) => {
+      const t = title.trim();
+      // Never leave the default-language wording empty.
+      if (t || lang !== def.default_language) {
+        const copy = { ...it.title };
+        if (t) copy[lang] = t;
+        else delete copy[lang];
+        it.title = copy;
+      }
+      const g = guidance.trim();
+      const guide = { ...(it.guidance ?? {}) };
+      if (g) guide[lang] = g;
+      else delete guide[lang];
+      it.guidance = Object.keys(guide).length ? guide : undefined;
+      it.weight = parseFloat(weight) || 1;
+    });
   }
 
   return (
-    <div className="p-6 space-y-5 overflow-y-auto">
-      <h3 className="font-medium text-sm">Item — {item.key}</h3>
+    <div className="space-y-5 p-5">
+      <Heading lang={lang} def={def}>
+        Question
+      </Heading>
 
       <div>
-        <label className="mb-1.5 block text-xs font-medium text-muted">Title (English)</label>
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} onBlur={() => save()} />
+        <label className={LABEL} htmlFor="item-title">
+          Question
+        </label>
+        <Input
+          id="item-title"
+          value={title}
+          placeholder={item.title?.[def.default_language]}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={saveWording}
+        />
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-medium text-muted">Guidance (English)</label>
+        <label className={LABEL} htmlFor="item-guidance">
+          Guidance
+        </label>
         <textarea
-          className="flex w-full rounded border border-border bg-surface px-3 py-1.5 text-sm text-text-main min-h-[72px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-y"
+          id="item-guidance"
+          className={TEXTAREA}
           value={guidance}
+          placeholder={item.guidance?.[def.default_language] ?? undefined}
           onChange={(e) => setGuidance(e.target.value)}
-          onBlur={() => save()}
+          onBlur={saveWording}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted">Type</label>
+          <label className={LABEL}>Answer type</label>
           <Select
-            value={type}
-            onValueChange={(v) => {
-              setType(v as Item["type"]);
-              save({ type: v as Item["type"] });
-            }}
+            value={item.type}
+            onValueChange={(v) =>
+              update((it) => {
+                it.type = v as Item["type"];
+                it.scale =
+                  it.type === "scale" ? (it.scale ?? def.scales[0]?.key ?? undefined) : undefined;
+              })
+            }
           >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {ITEM_TYPES.map((t) => (
-                <SelectItem key={t} value={t}>
-                  {t}
+                <SelectItem key={t.value} value={t.value}>
+                  {t.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {type === "scale" && (
+        {item.type === "scale" && (
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-muted">Scale</label>
+            <label className={LABEL}>Scale</label>
             <Select
-              value={scale}
-              onValueChange={(v) => {
-                setScale(v);
-                save({ scale: v });
-              }}
+              value={item.scale ?? ""}
+              onValueChange={(v) => update((it) => void (it.scale = v))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="choose…" />
+                <SelectValue placeholder="Choose…" />
               </SelectTrigger>
               <SelectContent>
                 {def.scales.map((s) => (
@@ -197,36 +242,49 @@ function ItemFieldEditor({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="space-y-4 rounded-xl border border-border p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium">Required</p>
+            <p className="text-xs text-muted">
+              The assessment can’t be submitted until it is answered.
+            </p>
+          </div>
+          <Switch
+            checked={item.required ?? false}
+            onCheckedChange={(v) => update((it) => void (it.required = v))}
+            label="Required"
+          />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium">Counts towards the score</p>
+            <p className="text-xs text-muted">Included in the total for the section.</p>
+          </div>
+          <Switch
+            checked={item.include_in_total !== false}
+            onCheckedChange={(v) => update((it) => void (it.include_in_total = v))}
+            label="Counts towards the score"
+          />
+        </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted">Weight</label>
+          <label className={LABEL} htmlFor="item-weight">
+            Weight
+          </label>
           <Input
+            id="item-weight"
             type="number"
             step="0.1"
             min="0.1"
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
-            onBlur={() => save()}
+            onBlur={saveWording}
           />
-        </div>
-        <div className="flex items-end pb-1.5">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={includeInTotal}
-              onChange={(e) => {
-                setIncludeInTotal(e.target.checked);
-                save({ include_in_total: e.target.checked });
-              }}
-              className="h-4 w-4 accent-primary"
-            />
-            Include in total
-          </label>
         </div>
       </div>
 
       <p className="text-xs text-muted">
-        Key: <code className="bg-bg px-1 rounded">{item.key}</code>
+        Key: <code className="rounded bg-bg px-1">{item.key}</code>
       </p>
     </div>
   );
