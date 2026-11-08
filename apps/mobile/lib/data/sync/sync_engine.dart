@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../domain/sync_log.dart';
 import '../database/app_database.dart';
 import '../repositories/assessment_repository.dart';
 import 'sync_api.dart';
@@ -43,7 +44,7 @@ final class SyncConflict extends SyncStatus {
 final syncEngineProvider = Provider<SyncEngine>((ref) {
   final engine = SyncEngine(
     db: ref.watch(dbProvider),
-    api: SyncApi(Supabase.instance.client),
+    api: SyncApi(() => Supabase.instance.client),
     storage: const FlutterSecureStorage(),
   );
   ref.onDispose(engine.dispose);
@@ -63,6 +64,9 @@ class SyncEngine {
   Stream<SyncStatus> get statusStream => _statusCtrl.stream;
 
   bool _syncing = false;
+
+  /// True while a sync is running.
+  bool get isSyncing => _syncing;
   int _failureCount = 0;
   Timer? _retryTimer;
   Timer? _pollTimer;
@@ -112,15 +116,57 @@ class SyncEngine {
     _statusCtrl.add(const SyncProgress());
 
     try {
-      final outcome = await _doSync();
+      final run = await _doSync();
       _failureCount = 0;
-      _statusCtrl.add(outcome);
+      await _record(run.outcome,
+          message: run.message,
+          endpoint: api.endpoint,
+          pushed: run.pushed,
+          pulled: run.pulled,
+          rejected: run.rejected);
+      _statusCtrl.add(run.status);
     } catch (e) {
       _failureCount++;
-      _statusCtrl.add(SyncError(e.toString()));
+      // Judge "offline or not" by what really went wrong, but report the call's own account of it.
+      final failure = classifySyncError(e is SyncCallException ? e.cause : e);
+      final message = e is SyncCallException ? tidyMessage(e.message) : failure.message;
+      await _record(failure.outcome,
+          message: message, endpoint: e is SyncCallException ? e.endpoint : _endpointOrNull());
+      _statusCtrl.add(SyncError(message));
       _scheduleRetry();
     } finally {
       _syncing = false;
+    }
+  }
+
+  /// Add a line to the sync log. A problem writing the log must never break a sync.
+  Future<void> _record(
+    SyncOutcome outcome, {
+    String? message,
+    String? endpoint,
+    int pushed = 0,
+    int pulled = 0,
+    int rejected = 0,
+  }) async {
+    try {
+      await db.assessmentsDao.recordSync(
+        outcome: outcome.code,
+        message: message,
+        endpoint: endpoint,
+        pushed: pushed,
+        pulled: pulled,
+        rejected: rejected,
+      );
+    } catch (_) {}
+  }
+
+  /// The address a sync calls, so that even failures raised before the call (such as a lapsed
+  /// sign-in) are logged with it.
+  String? _endpointOrNull() {
+    try {
+      return api.endpoint;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -131,7 +177,7 @@ class SyncEngine {
 
   // ─── Core sync ───────────────────────────────────────────────────────────────
 
-  Future<SyncStatus> _doSync() async {
+  Future<_SyncRun> _doSync() async {
     final deviceId = await _deviceId();
     // A phone updated from an older version has never been told who reviewed its assessments, so
     // it starts over from the beginning once.
@@ -190,11 +236,30 @@ class SyncEngine {
     await storage.write(key: 'sync_schema', value: _syncSchema);
     await _uploadPendingAttachments();
 
-    if (refusals.isNotEmpty) return SyncError(refusals.first.submitMessage);
+    final pushed = push.length - result.rejected.length;
+    final pulled = result.pull.assessments.length +
+        result.pull.responses.length +
+        result.pull.formVersions.length +
+        result.pull.helpArticles.length +
+        result.pull.locations.length +
+        result.pull.members.length +
+        result.pull.forms.length;
+    _SyncRun run(SyncStatus status, SyncOutcome outcome, {String? message, int rejected = 0}) =>
+        _SyncRun(status, outcome, message: message, pushed: pushed < 0 ? 0 : pushed, pulled: pulled, rejected: rejected);
+
+    if (refusals.isNotEmpty) {
+      final message = tidyMessage(refusals.first.submitMessage);
+      return run(SyncError(message), SyncOutcome.rejected, message: message, rejected: result.rejected.length);
+    }
     final notAssigned = result.rejected.where((r) => r.reason == 'not_assigned').length;
-    if (notAssigned > 0) return SyncError('not_assigned');
+    if (notAssigned > 0) {
+      return run(const SyncError('not_assigned'), SyncOutcome.rejected,
+          message: 'not_assigned', rejected: notAssigned);
+    }
     final conflicts = result.rejected.where((r) => r.isConflict).length;
-    return conflicts > 0 ? SyncConflict(conflicts) : const SyncIdle();
+    return conflicts > 0
+        ? run(SyncConflict(conflicts), SyncOutcome.conflict, rejected: conflicts)
+        : run(const SyncIdle(), SyncOutcome.ok);
   }
 
   // ─── Push serialisers ────────────────────────────────────────────────────────
@@ -366,4 +431,23 @@ class SyncEngine {
     final h = bytes.map(hex).join();
     return '${h.substring(0, 8)}-${h.substring(8, 12)}-${h.substring(12, 16)}-${h.substring(16, 20)}-${h.substring(20)}';
   }
+}
+
+/// What one sync did: the status to show right now and the line to keep in the sync log.
+class _SyncRun {
+  const _SyncRun(
+    this.status,
+    this.outcome, {
+    this.message,
+    this.pushed = 0,
+    this.pulled = 0,
+    this.rejected = 0,
+  });
+
+  final SyncStatus status;
+  final SyncOutcome outcome;
+  final String? message;
+  final int pushed;
+  final int pulled;
+  final int rejected;
 }

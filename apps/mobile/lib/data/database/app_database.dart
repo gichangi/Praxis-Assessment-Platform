@@ -24,6 +24,7 @@ part 'app_database.g.dart';
     LocalMembers,
     LocalForms,
     LocalFormLocations,
+    LocalSyncLogs,
   ],
   daos: [AssessmentsDao],
 )
@@ -34,7 +35,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -68,6 +69,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 6) {
         await m.addColumn(localAssessments, localAssessments.reviewedBy);
         await m.addColumn(localAssessments, localAssessments.reviewedAt);
+      }
+      if (from < 7) {
+        await m.createTable(localSyncLogs);
+      } else if (from < 8) {
+        await m.addColumn(localSyncLogs, localSyncLogs.endpoint);
       }
     },
   );

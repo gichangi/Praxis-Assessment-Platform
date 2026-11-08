@@ -3925,6 +3925,491 @@ class LocalFormLocationsCompanion extends UpdateCompanion<LocalFormLocation> {
   }
 }
 
+class $LocalSyncLogsTable extends LocalSyncLogs
+    with TableInfo<$LocalSyncLogsTable, LocalSyncLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalSyncLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _atMeta = const VerificationMeta('at');
+  @override
+  late final GeneratedColumn<DateTime> at = GeneratedColumn<DateTime>(
+    'at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _outcomeMeta = const VerificationMeta(
+    'outcome',
+  );
+  @override
+  late final GeneratedColumn<String> outcome = GeneratedColumn<String>(
+    'outcome',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _messageMeta = const VerificationMeta(
+    'message',
+  );
+  @override
+  late final GeneratedColumn<String> message = GeneratedColumn<String>(
+    'message',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endpointMeta = const VerificationMeta(
+    'endpoint',
+  );
+  @override
+  late final GeneratedColumn<String> endpoint = GeneratedColumn<String>(
+    'endpoint',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pushedMeta = const VerificationMeta('pushed');
+  @override
+  late final GeneratedColumn<int> pushed = GeneratedColumn<int>(
+    'pushed',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _pulledMeta = const VerificationMeta('pulled');
+  @override
+  late final GeneratedColumn<int> pulled = GeneratedColumn<int>(
+    'pulled',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _rejectedMeta = const VerificationMeta(
+    'rejected',
+  );
+  @override
+  late final GeneratedColumn<int> rejected = GeneratedColumn<int>(
+    'rejected',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    at,
+    outcome,
+    message,
+    endpoint,
+    pushed,
+    pulled,
+    rejected,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_sync_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalSyncLog> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('at')) {
+      context.handle(_atMeta, at.isAcceptableOrUnknown(data['at']!, _atMeta));
+    } else if (isInserting) {
+      context.missing(_atMeta);
+    }
+    if (data.containsKey('outcome')) {
+      context.handle(
+        _outcomeMeta,
+        outcome.isAcceptableOrUnknown(data['outcome']!, _outcomeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_outcomeMeta);
+    }
+    if (data.containsKey('message')) {
+      context.handle(
+        _messageMeta,
+        message.isAcceptableOrUnknown(data['message']!, _messageMeta),
+      );
+    }
+    if (data.containsKey('endpoint')) {
+      context.handle(
+        _endpointMeta,
+        endpoint.isAcceptableOrUnknown(data['endpoint']!, _endpointMeta),
+      );
+    }
+    if (data.containsKey('pushed')) {
+      context.handle(
+        _pushedMeta,
+        pushed.isAcceptableOrUnknown(data['pushed']!, _pushedMeta),
+      );
+    }
+    if (data.containsKey('pulled')) {
+      context.handle(
+        _pulledMeta,
+        pulled.isAcceptableOrUnknown(data['pulled']!, _pulledMeta),
+      );
+    }
+    if (data.containsKey('rejected')) {
+      context.handle(
+        _rejectedMeta,
+        rejected.isAcceptableOrUnknown(data['rejected']!, _rejectedMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalSyncLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalSyncLog(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      at: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}at'],
+      )!,
+      outcome: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}outcome'],
+      )!,
+      message: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}message'],
+      ),
+      endpoint: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}endpoint'],
+      ),
+      pushed: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pushed'],
+      )!,
+      pulled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pulled'],
+      )!,
+      rejected: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rejected'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalSyncLogsTable createAlias(String alias) {
+    return $LocalSyncLogsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalSyncLog extends DataClass implements Insertable<LocalSyncLog> {
+  final int id;
+  final DateTime at;
+
+  /// 'ok' | 'conflict' | 'rejected' | 'error' | 'offline'
+  final String outcome;
+  final String? message;
+
+  /// The address the phone called, e.g. `POST https://server/functions/v1/sync`.
+  final String? endpoint;
+  final int pushed;
+  final int pulled;
+  final int rejected;
+  const LocalSyncLog({
+    required this.id,
+    required this.at,
+    required this.outcome,
+    this.message,
+    this.endpoint,
+    required this.pushed,
+    required this.pulled,
+    required this.rejected,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['at'] = Variable<DateTime>(at);
+    map['outcome'] = Variable<String>(outcome);
+    if (!nullToAbsent || message != null) {
+      map['message'] = Variable<String>(message);
+    }
+    if (!nullToAbsent || endpoint != null) {
+      map['endpoint'] = Variable<String>(endpoint);
+    }
+    map['pushed'] = Variable<int>(pushed);
+    map['pulled'] = Variable<int>(pulled);
+    map['rejected'] = Variable<int>(rejected);
+    return map;
+  }
+
+  LocalSyncLogsCompanion toCompanion(bool nullToAbsent) {
+    return LocalSyncLogsCompanion(
+      id: Value(id),
+      at: Value(at),
+      outcome: Value(outcome),
+      message: message == null && nullToAbsent
+          ? const Value.absent()
+          : Value(message),
+      endpoint: endpoint == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endpoint),
+      pushed: Value(pushed),
+      pulled: Value(pulled),
+      rejected: Value(rejected),
+    );
+  }
+
+  factory LocalSyncLog.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalSyncLog(
+      id: serializer.fromJson<int>(json['id']),
+      at: serializer.fromJson<DateTime>(json['at']),
+      outcome: serializer.fromJson<String>(json['outcome']),
+      message: serializer.fromJson<String?>(json['message']),
+      endpoint: serializer.fromJson<String?>(json['endpoint']),
+      pushed: serializer.fromJson<int>(json['pushed']),
+      pulled: serializer.fromJson<int>(json['pulled']),
+      rejected: serializer.fromJson<int>(json['rejected']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'at': serializer.toJson<DateTime>(at),
+      'outcome': serializer.toJson<String>(outcome),
+      'message': serializer.toJson<String?>(message),
+      'endpoint': serializer.toJson<String?>(endpoint),
+      'pushed': serializer.toJson<int>(pushed),
+      'pulled': serializer.toJson<int>(pulled),
+      'rejected': serializer.toJson<int>(rejected),
+    };
+  }
+
+  LocalSyncLog copyWith({
+    int? id,
+    DateTime? at,
+    String? outcome,
+    Value<String?> message = const Value.absent(),
+    Value<String?> endpoint = const Value.absent(),
+    int? pushed,
+    int? pulled,
+    int? rejected,
+  }) => LocalSyncLog(
+    id: id ?? this.id,
+    at: at ?? this.at,
+    outcome: outcome ?? this.outcome,
+    message: message.present ? message.value : this.message,
+    endpoint: endpoint.present ? endpoint.value : this.endpoint,
+    pushed: pushed ?? this.pushed,
+    pulled: pulled ?? this.pulled,
+    rejected: rejected ?? this.rejected,
+  );
+  LocalSyncLog copyWithCompanion(LocalSyncLogsCompanion data) {
+    return LocalSyncLog(
+      id: data.id.present ? data.id.value : this.id,
+      at: data.at.present ? data.at.value : this.at,
+      outcome: data.outcome.present ? data.outcome.value : this.outcome,
+      message: data.message.present ? data.message.value : this.message,
+      endpoint: data.endpoint.present ? data.endpoint.value : this.endpoint,
+      pushed: data.pushed.present ? data.pushed.value : this.pushed,
+      pulled: data.pulled.present ? data.pulled.value : this.pulled,
+      rejected: data.rejected.present ? data.rejected.value : this.rejected,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalSyncLog(')
+          ..write('id: $id, ')
+          ..write('at: $at, ')
+          ..write('outcome: $outcome, ')
+          ..write('message: $message, ')
+          ..write('endpoint: $endpoint, ')
+          ..write('pushed: $pushed, ')
+          ..write('pulled: $pulled, ')
+          ..write('rejected: $rejected')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, at, outcome, message, endpoint, pushed, pulled, rejected);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalSyncLog &&
+          other.id == this.id &&
+          other.at == this.at &&
+          other.outcome == this.outcome &&
+          other.message == this.message &&
+          other.endpoint == this.endpoint &&
+          other.pushed == this.pushed &&
+          other.pulled == this.pulled &&
+          other.rejected == this.rejected);
+}
+
+class LocalSyncLogsCompanion extends UpdateCompanion<LocalSyncLog> {
+  final Value<int> id;
+  final Value<DateTime> at;
+  final Value<String> outcome;
+  final Value<String?> message;
+  final Value<String?> endpoint;
+  final Value<int> pushed;
+  final Value<int> pulled;
+  final Value<int> rejected;
+  const LocalSyncLogsCompanion({
+    this.id = const Value.absent(),
+    this.at = const Value.absent(),
+    this.outcome = const Value.absent(),
+    this.message = const Value.absent(),
+    this.endpoint = const Value.absent(),
+    this.pushed = const Value.absent(),
+    this.pulled = const Value.absent(),
+    this.rejected = const Value.absent(),
+  });
+  LocalSyncLogsCompanion.insert({
+    this.id = const Value.absent(),
+    required DateTime at,
+    required String outcome,
+    this.message = const Value.absent(),
+    this.endpoint = const Value.absent(),
+    this.pushed = const Value.absent(),
+    this.pulled = const Value.absent(),
+    this.rejected = const Value.absent(),
+  }) : at = Value(at),
+       outcome = Value(outcome);
+  static Insertable<LocalSyncLog> custom({
+    Expression<int>? id,
+    Expression<DateTime>? at,
+    Expression<String>? outcome,
+    Expression<String>? message,
+    Expression<String>? endpoint,
+    Expression<int>? pushed,
+    Expression<int>? pulled,
+    Expression<int>? rejected,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (at != null) 'at': at,
+      if (outcome != null) 'outcome': outcome,
+      if (message != null) 'message': message,
+      if (endpoint != null) 'endpoint': endpoint,
+      if (pushed != null) 'pushed': pushed,
+      if (pulled != null) 'pulled': pulled,
+      if (rejected != null) 'rejected': rejected,
+    });
+  }
+
+  LocalSyncLogsCompanion copyWith({
+    Value<int>? id,
+    Value<DateTime>? at,
+    Value<String>? outcome,
+    Value<String?>? message,
+    Value<String?>? endpoint,
+    Value<int>? pushed,
+    Value<int>? pulled,
+    Value<int>? rejected,
+  }) {
+    return LocalSyncLogsCompanion(
+      id: id ?? this.id,
+      at: at ?? this.at,
+      outcome: outcome ?? this.outcome,
+      message: message ?? this.message,
+      endpoint: endpoint ?? this.endpoint,
+      pushed: pushed ?? this.pushed,
+      pulled: pulled ?? this.pulled,
+      rejected: rejected ?? this.rejected,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (at.present) {
+      map['at'] = Variable<DateTime>(at.value);
+    }
+    if (outcome.present) {
+      map['outcome'] = Variable<String>(outcome.value);
+    }
+    if (message.present) {
+      map['message'] = Variable<String>(message.value);
+    }
+    if (endpoint.present) {
+      map['endpoint'] = Variable<String>(endpoint.value);
+    }
+    if (pushed.present) {
+      map['pushed'] = Variable<int>(pushed.value);
+    }
+    if (pulled.present) {
+      map['pulled'] = Variable<int>(pulled.value);
+    }
+    if (rejected.present) {
+      map['rejected'] = Variable<int>(rejected.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalSyncLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('at: $at, ')
+          ..write('outcome: $outcome, ')
+          ..write('message: $message, ')
+          ..write('endpoint: $endpoint, ')
+          ..write('pushed: $pushed, ')
+          ..write('pulled: $pulled, ')
+          ..write('rejected: $rejected')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3944,6 +4429,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $LocalFormsTable localForms = $LocalFormsTable(this);
   late final $LocalFormLocationsTable localFormLocations =
       $LocalFormLocationsTable(this);
+  late final $LocalSyncLogsTable localSyncLogs = $LocalSyncLogsTable(this);
   late final AssessmentsDao assessmentsDao = AssessmentsDao(
     this as AppDatabase,
   );
@@ -3961,6 +4447,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     localMembers,
     localForms,
     localFormLocations,
+    localSyncLogs,
   ];
 }
 
@@ -6178,6 +6665,266 @@ typedef $$LocalFormLocationsTableProcessedTableManager =
       LocalFormLocation,
       PrefetchHooks Function()
     >;
+typedef $$LocalSyncLogsTableCreateCompanionBuilder =
+    LocalSyncLogsCompanion Function({
+      Value<int> id,
+      required DateTime at,
+      required String outcome,
+      Value<String?> message,
+      Value<String?> endpoint,
+      Value<int> pushed,
+      Value<int> pulled,
+      Value<int> rejected,
+    });
+typedef $$LocalSyncLogsTableUpdateCompanionBuilder =
+    LocalSyncLogsCompanion Function({
+      Value<int> id,
+      Value<DateTime> at,
+      Value<String> outcome,
+      Value<String?> message,
+      Value<String?> endpoint,
+      Value<int> pushed,
+      Value<int> pulled,
+      Value<int> rejected,
+    });
+
+class $$LocalSyncLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalSyncLogsTable> {
+  $$LocalSyncLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get endpoint => $composableBuilder(
+    column: $table.endpoint,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pushed => $composableBuilder(
+    column: $table.pushed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pulled => $composableBuilder(
+    column: $table.pulled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rejected => $composableBuilder(
+    column: $table.rejected,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LocalSyncLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalSyncLogsTable> {
+  $$LocalSyncLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get endpoint => $composableBuilder(
+    column: $table.endpoint,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pushed => $composableBuilder(
+    column: $table.pushed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pulled => $composableBuilder(
+    column: $table.pulled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rejected => $composableBuilder(
+    column: $table.rejected,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LocalSyncLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalSyncLogsTable> {
+  $$LocalSyncLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => column);
+
+  GeneratedColumn<String> get outcome =>
+      $composableBuilder(column: $table.outcome, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<String> get endpoint =>
+      $composableBuilder(column: $table.endpoint, builder: (column) => column);
+
+  GeneratedColumn<int> get pushed =>
+      $composableBuilder(column: $table.pushed, builder: (column) => column);
+
+  GeneratedColumn<int> get pulled =>
+      $composableBuilder(column: $table.pulled, builder: (column) => column);
+
+  GeneratedColumn<int> get rejected =>
+      $composableBuilder(column: $table.rejected, builder: (column) => column);
+}
+
+class $$LocalSyncLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalSyncLogsTable,
+          LocalSyncLog,
+          $$LocalSyncLogsTableFilterComposer,
+          $$LocalSyncLogsTableOrderingComposer,
+          $$LocalSyncLogsTableAnnotationComposer,
+          $$LocalSyncLogsTableCreateCompanionBuilder,
+          $$LocalSyncLogsTableUpdateCompanionBuilder,
+          (
+            LocalSyncLog,
+            BaseReferences<_$AppDatabase, $LocalSyncLogsTable, LocalSyncLog>,
+          ),
+          LocalSyncLog,
+          PrefetchHooks Function()
+        > {
+  $$LocalSyncLogsTableTableManager(_$AppDatabase db, $LocalSyncLogsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalSyncLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalSyncLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalSyncLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> at = const Value.absent(),
+                Value<String> outcome = const Value.absent(),
+                Value<String?> message = const Value.absent(),
+                Value<String?> endpoint = const Value.absent(),
+                Value<int> pushed = const Value.absent(),
+                Value<int> pulled = const Value.absent(),
+                Value<int> rejected = const Value.absent(),
+              }) => LocalSyncLogsCompanion(
+                id: id,
+                at: at,
+                outcome: outcome,
+                message: message,
+                endpoint: endpoint,
+                pushed: pushed,
+                pulled: pulled,
+                rejected: rejected,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required DateTime at,
+                required String outcome,
+                Value<String?> message = const Value.absent(),
+                Value<String?> endpoint = const Value.absent(),
+                Value<int> pushed = const Value.absent(),
+                Value<int> pulled = const Value.absent(),
+                Value<int> rejected = const Value.absent(),
+              }) => LocalSyncLogsCompanion.insert(
+                id: id,
+                at: at,
+                outcome: outcome,
+                message: message,
+                endpoint: endpoint,
+                pushed: pushed,
+                pulled: pulled,
+                rejected: rejected,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$LocalSyncLogsTable, LocalSyncLog>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $LocalSyncLogsTable,
+                    LocalSyncLog
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LocalSyncLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalSyncLogsTable,
+      LocalSyncLog,
+      $$LocalSyncLogsTableFilterComposer,
+      $$LocalSyncLogsTableOrderingComposer,
+      $$LocalSyncLogsTableAnnotationComposer,
+      $$LocalSyncLogsTableCreateCompanionBuilder,
+      $$LocalSyncLogsTableUpdateCompanionBuilder,
+      (
+        LocalSyncLog,
+        BaseReferences<_$AppDatabase, $LocalSyncLogsTable, LocalSyncLog>,
+      ),
+      LocalSyncLog,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6200,4 +6947,6 @@ class $AppDatabaseManager {
       $$LocalFormsTableTableManager(_db, _db.localForms);
   $$LocalFormLocationsTableTableManager get localFormLocations =>
       $$LocalFormLocationsTableTableManager(_db, _db.localFormLocations);
+  $$LocalSyncLogsTableTableManager get localSyncLogs =>
+      $$LocalSyncLogsTableTableManager(_db, _db.localSyncLogs);
 }

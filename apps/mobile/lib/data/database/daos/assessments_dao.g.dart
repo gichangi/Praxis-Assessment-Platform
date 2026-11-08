@@ -18,6 +18,7 @@ mixin _$AssessmentsDaoMixin on DatabaseAccessor<AppDatabase> {
   $LocalFormsTable get localForms => attachedDatabase.localForms;
   $LocalFormLocationsTable get localFormLocations =>
       attachedDatabase.localFormLocations;
+  $LocalSyncLogsTable get localSyncLogs => attachedDatabase.localSyncLogs;
   AssessmentsDaoManager get managers => AssessmentsDaoManager(this);
 }
 
@@ -63,4 +64,6 @@ class AssessmentsDaoManager {
         _db.attachedDatabase,
         _db.localFormLocations,
       );
+  $$LocalSyncLogsTableTableManager get localSyncLogs =>
+      $$LocalSyncLogsTableTableManager(_db.attachedDatabase, _db.localSyncLogs);
 }

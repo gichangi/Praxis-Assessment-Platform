@@ -1,10 +1,16 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../app/router.dart';
 import '../../app/theme.dart';
+import '../../data/sync/sync_engine.dart';
+import '../sync/sync_format.dart';
+import '../sync/sync_providers.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -44,6 +50,8 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
+          const _SyncTile(),
+          const SizedBox(height: 12),
           // Language picker
           Card(
             child: Column(
@@ -88,6 +96,34 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+/// Opens the sync log; shows when the phone last synced and whether the last try failed.
+class _SyncTile extends ConsumerWidget {
+  const _SyncTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final engine = ref.watch(syncEngineProvider);
+    final attempt = ref.watch(lastSyncAttemptProvider).valueOrNull;
+    final success = ref.watch(lastSuccessfulSyncProvider).valueOrNull;
+    final line = syncSummaryLine(
+      context,
+      syncing: engine.isSyncing,
+      lastAttempt: attempt,
+      lastSuccess: success,
+    );
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.sync),
+        title: Text(tr('sync_title')),
+        subtitle: Text(line.text, style: TextStyle(color: line.tone)),
+        trailing: Icon(Directionality.of(context) == ui.TextDirection.rtl ? Icons.chevron_left : Icons.chevron_right),
+        onTap: () => context.push(Routes.sync),
       ),
     );
   }

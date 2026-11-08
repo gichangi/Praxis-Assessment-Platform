@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'app/restartable_scope.dart';
 import 'app/router.dart';
 import 'app/theme.dart';
 import 'data/services/server_config.dart';
@@ -20,6 +21,7 @@ Future<void> reinitSupabase() async {
     await Supabase.instance.dispose();
   } catch (_) {}
   await Supabase.initialize(url: cfg.url, publishableKey: cfg.anonKey);
+  routerAuthNotifier.rebind();
   appRestartSignal.value++;
 }
 
@@ -35,9 +37,9 @@ void main() async {
       supportedLocales: const [Locale('en'), Locale('so'), Locale('ar')],
       path: 'lib/l10n',
       fallbackLocale: const Locale('en'),
-      child: ValueListenableBuilder<int>(
-        valueListenable: appRestartSignal,
-        builder: (_, _, _) => const ProviderScope(child: AssessmentApp()),
+      child: RestartableScope(
+        restart: appRestartSignal,
+        child: const AssessmentApp(),
       ),
     ),
   );

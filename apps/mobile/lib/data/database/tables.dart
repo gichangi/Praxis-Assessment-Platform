@@ -124,3 +124,20 @@ class LocalAttachments extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+/// One line per sync attempt, so people can see when the phone last synced and why a sync failed.
+/// Holds counts and short messages only, never assessment answers.
+class LocalSyncLogs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get at => dateTime()();
+
+  /// 'ok' | 'conflict' | 'rejected' | 'error' | 'offline'
+  TextColumn get outcome => text()();
+  TextColumn get message => text().nullable()();
+
+  /// The address the phone called, e.g. `POST https://server/functions/v1/sync`.
+  TextColumn get endpoint => text().nullable()();
+  IntColumn get pushed => integer().withDefault(const Constant(0))();
+  IntColumn get pulled => integer().withDefault(const Constant(0))();
+  IntColumn get rejected => integer().withDefault(const Constant(0))();
+}

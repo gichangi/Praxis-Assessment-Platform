@@ -11,6 +11,8 @@ import '../../app/theme.dart';
 import '../../data/repositories/assessment_repository.dart';
 import '../../data/database/app_database.dart';
 import '../../data/sync/sync_engine.dart';
+import '../sync/sync_format.dart';
+import '../sync/sync_providers.dart';
 import '../../domain/assessment_stage.dart';
 import '../../domain/review_decision.dart';
 import 'review_decision_card.dart';
@@ -91,7 +93,7 @@ class _AssessmentsListScreenState extends ConsumerState<AssessmentsListScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(tr('assessments_title')),
-            _SyncSubtitle(onTap: _syncNow),
+            _SyncSubtitle(onTap: () => context.push(Routes.sync)),
           ],
         ),
         backgroundColor: AppTheme.surface,
@@ -300,22 +302,24 @@ class _SyncSubtitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final engine = ref.watch(syncEngineProvider);
+    final attempt = ref.watch(lastSyncAttemptProvider).valueOrNull;
+    final success = ref.watch(lastSuccessfulSyncProvider).valueOrNull;
     return StreamBuilder<SyncStatus>(
-      stream: ref.watch(syncEngineProvider).statusStream,
-      initialData: const SyncIdle(),
+      stream: engine.statusStream,
+      initialData: engine.isSyncing ? const SyncProgress() : const SyncIdle(),
       builder: (context, snap) {
-        final status = snap.data ?? const SyncIdle();
-        final label = switch (status) {
-          SyncProgress() => tr('sync_syncing'),
-          SyncError() => tr('sync_error'),
-          SyncConflict() => tr('sync_conflict'),
-          SyncIdle() => tr('sync_now'),
-        };
+        final line = syncSummaryLine(
+          context,
+          syncing: snap.data is SyncProgress,
+          lastAttempt: attempt,
+          lastSuccess: success,
+        );
         return InkWell(
           onTap: onTap,
           child: Text(
-            label,
-            style: TextStyle(fontSize: 11, color: AppTheme.muted),
+            line.text,
+            style: TextStyle(fontSize: 11, color: line.tone),
           ),
         );
       },

@@ -115,14 +115,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _applyServer() async {
     final url = _urlCtrl.text.trim();
-    if (url.isEmpty || (!url.startsWith('http://') && !url.startsWith('https://'))) {
-      setState(() { _serverError = tr('auth_server_invalid_url'); _serverConnected = false; });
+    final anonKey = _anonKeyCtrl.text.trim();
+    final problem = ServerConfig.setupProblem(url: url, anonKey: anonKey);
+    if (problem != null) {
+      setState(() {
+        _serverError = tr(switch (problem) {
+          ServerSetupProblem.invalidUrl => 'auth_server_invalid_url',
+          ServerSetupProblem.missingKey => 'auth_server_key_missing',
+          ServerSetupProblem.demoKey => 'auth_server_key_demo',
+        });
+        _serverConnected = false;
+      });
       return;
     }
     setState(() { _serverLoading = true; _serverError = null; _serverConnected = false; });
     try {
-      await ServerConfig.testConnection(url);
-      await ServerConfig.save(url: url, anonKey: _anonKeyCtrl.text.trim());
+      await ServerConfig.testConnection(url, anonKey: anonKey);
+      await ServerConfig.save(url: url, anonKey: anonKey);
       if (mounted) setState(() { _serverConnected = true; _serverLoading = false; });
       await reinitSupabase();
       // reinitSupabase() increments appRestartSignal, rebuilding ProviderScope;
@@ -130,7 +139,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _serverError = e.toString().replaceFirst('Exception: ', '');
+          _serverError = e is ServerKeyRejected
+              ? tr('auth_server_key_rejected')
+              : e.toString().replaceFirst('Exception: ', '');
           _serverLoading = false;
           _serverConnected = false;
         });

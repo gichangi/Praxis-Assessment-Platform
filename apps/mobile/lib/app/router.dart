@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,6 +12,7 @@ import '../features/assessments/item_screen.dart';
 import '../features/assessments/summary_screen.dart';
 import '../features/compare/compare_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/sync/sync_screen.dart';
 
 // Route paths
 abstract final class Routes {
@@ -21,6 +24,7 @@ abstract final class Routes {
   static const assessmentSummary = '/assessments/:id/summary';
   static const compare = '/compare';
   static const settings = '/settings';
+  static const sync = '/sync';
   static const helpList = '/help';
   static const helpArticle = '/help/:slug';
   static const reportProblem = '/report';
@@ -35,7 +39,7 @@ final router = GoRouter(
     if (session != null && isOnLogin) return Routes.assessments;
     return null;
   },
-  refreshListenable: _SupabaseAuthNotifier(),
+  refreshListenable: routerAuthNotifier,
   routes: [
     GoRoute(
       path: Routes.login,
@@ -77,6 +81,10 @@ final router = GoRouter(
       builder: (context, state) => const SettingsScreen(),
     ),
     GoRoute(
+      path: Routes.sync,
+      builder: (context, state) => const SyncScreen(),
+    ),
+    GoRoute(
       path: Routes.helpList,
       builder: (context, state) => const _PlaceholderScreen(title: 'Help'),
       routes: [
@@ -94,13 +102,25 @@ final router = GoRouter(
 );
 
 /// Tells go_router to re-evaluate redirects when auth state changes.
+/// Re-runs the router's redirect whenever the signed-in state changes. After the server address is
+/// changed the Supabase client is replaced, so [rebind] points this at the new one.
+final routerAuthNotifier = _SupabaseAuthNotifier();
+
 class _SupabaseAuthNotifier extends ChangeNotifier {
-  late final _sub = Supabase.instance.client.auth.onAuthStateChange
-      .listen((_) => notifyListeners());
+  _SupabaseAuthNotifier() {
+    rebind();
+  }
+
+  StreamSubscription<AuthState>? _sub;
+
+  void rebind() {
+    _sub?.cancel();
+    _sub = Supabase.instance.client.auth.onAuthStateChange.listen((_) => notifyListeners());
+  }
 
   @override
   void dispose() {
-    _sub.cancel();
+    _sub?.cancel();
     super.dispose();
   }
 }

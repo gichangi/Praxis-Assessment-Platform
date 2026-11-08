@@ -14,6 +14,7 @@ part 'assessments_dao.g.dart';
   LocalMembers,
   LocalForms,
   LocalFormLocations,
+  LocalSyncLogs,
 ])
 class AssessmentsDao extends DatabaseAccessor<AppDatabase> with _$AssessmentsDaoMixin {
   AssessmentsDao(super.db);
@@ -171,4 +172,64 @@ class AssessmentsDao extends DatabaseAccessor<AppDatabase> with _$AssessmentsDao
 
   Future<void> deleteAttachment(String id) =>
       (delete(localAttachments)..where((t) => t.id.equals(id))).go();
+
+  // ── Sync log ───────────────────────────────────────────────────────────────
+
+  /// How many sync lines to keep.
+  static const syncLogKeep = 50;
+
+  /// Outcomes where the server answered and the phone is up to date as of that moment.
+  static const syncedOutcomes = ['ok', 'conflict', 'rejected'];
+
+  Future<void> recordSync({
+    required String outcome,
+    String? message,
+    String? endpoint,
+    int pushed = 0,
+    int pulled = 0,
+    int rejected = 0,
+    DateTime? at,
+  }) async {
+    await into(localSyncLogs).insert(LocalSyncLogsCompanion.insert(
+      at: at ?? DateTime.now(),
+      outcome: outcome,
+      message: Value(message),
+      endpoint: Value(endpoint),
+      pushed: Value(pushed),
+      pulled: Value(pulled),
+      rejected: Value(rejected),
+    ));
+    // Keep only the newest lines.
+    await customStatement(
+      'DELETE FROM local_sync_logs WHERE id NOT IN '
+      '(SELECT id FROM local_sync_logs ORDER BY at DESC, id DESC LIMIT $syncLogKeep)',
+    );
+  }
+
+  Stream<List<LocalSyncLog>> watchSyncLog() => (select(localSyncLogs)
+        ..orderBy([(t) => OrderingTerm.desc(t.at), (t) => OrderingTerm.desc(t.id)]))
+      .watch();
+
+  /// The latest sync attempt, whatever happened.
+  Stream<LocalSyncLog?> watchLastSyncAttempt() => (select(localSyncLogs)
+        ..orderBy([(t) => OrderingTerm.desc(t.at), (t) => OrderingTerm.desc(t.id)])
+        ..limit(1))
+      .watchSingleOrNull();
+
+  /// The latest sync that reached the server.
+  Stream<LocalSyncLog?> watchLastSuccessfulSync() => (select(localSyncLogs)
+        ..where((t) => t.outcome.isIn(syncedOutcomes))
+        ..orderBy([(t) => OrderingTerm.desc(t.at), (t) => OrderingTerm.desc(t.id)])
+        ..limit(1))
+      .watchSingleOrNull();
+
+  Future<void> clearSyncLog() => delete(localSyncLogs).go();
+
+  /// Assessments with changes saved on this phone that haven't reached the server yet.
+  Stream<int> watchPendingUploadCount() => customSelect(
+        'SELECT COUNT(*) AS c FROM ('
+        'SELECT id FROM local_assessments WHERE dirty = 1 '
+        'UNION SELECT assessment_id FROM local_responses WHERE dirty = 1)',
+        readsFrom: {localAssessments, localResponses},
+      ).watchSingle().map((r) => r.read<int>('c'));
 }
