@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { callFunction } from "@/lib/function-proxy";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
@@ -6,19 +7,7 @@ export async function POST(req: NextRequest) {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json();
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/invite-user`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session.access_token}`,
-      },
-      body: JSON.stringify(body),
-    },
-  );
-
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  return callFunction("invite-user", "POST", session.access_token, body);
 }
