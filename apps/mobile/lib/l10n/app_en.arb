@@ -383,7 +383,7 @@
   "@assessment_no_assessors": { "description": "empty state for co-assessors list" },
   "assessment_add_assessor": "Manage co-assessors",
   "@assessment_add_assessor": { "description": "tooltip / button label to open the co-assessor picker" },
-  "auth_app_name": "District Assessment",
+  "auth_app_name": "Praxis Portal",
   "@auth_app_name": { "description": "app name on login screen" },
   "auth_app_tagline": "Puntland Regional Governance",
   "@auth_app_tagline": { "description": "app tagline on login screen" },

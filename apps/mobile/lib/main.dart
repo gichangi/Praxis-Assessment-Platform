@@ -98,7 +98,7 @@ class _AssessmentAppState extends ConsumerState<AssessmentApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Assessment Platform',
+      title: 'Praxis Portal',
       theme: AppTheme.light(),
       routerConfig: router,
       localizationsDelegates: [
